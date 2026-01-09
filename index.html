@@ -146,7 +146,7 @@
         <h1>Registro de visita (campo)</h1>
         <div class="sub">
           En la comunidad: mira la pantalla del Arduino y escribe los valores aquí (offline).
-          <br>En la ciudad: al abrir esta app con internet, se sincroniza automáticamente a Airtable.
+          <br>En la ciudad: al abrir esta app con internet, se sincroniza automáticamente.
         </div>
       </div>
       <div class="pill" id="netPill"><span class="dot off" id="netDot"></span><span id="netText">Offline</span></div>
@@ -161,8 +161,8 @@
             <input id="hive" placeholder="Ej: AB-01" inputmode="text" autocomplete="off">
           </div>
           <div>
-            <label>Fecha y hora</label>
-            <input id="when" type="datetime-local">
+            <label>Fecha y hora (automática)</label>
+            <input id="when" type="text" readonly aria-readonly="true" inputmode="none">
           </div>
         </div>
 
