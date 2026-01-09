@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registro de Visita — Abejas</title>
+
+  <!-- Poppins (requiere internet solo la primera vez; luego queda en caché del navegador si instalas la PWA) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    :root{
+      --primary:#0b983a;
+      --secondary:#7e4f25;
+      --primaryRgb: 11,152,58;
+
+      --bg:#0b1220;
+      --text:#eaf0ff;
+      --muted:#9fb0d0;
+      --line: rgba(255,255,255,.10);
+      --surface: rgba(255,255,255,.03);
+      --surface2: rgba(255,255,255,.02);
+
+      --radius: 14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    .wrap{max-width:760px;margin:0 auto;padding:16px 14px 30px}
+    header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+    h1{font-size:16px;margin:0;font-weight:700;letter-spacing:.2px}
+    .sub{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.35}
+    .pill{
+      border:1px solid var(--line);
+      background: transparent;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      color:var(--muted);
+      display:inline-flex;gap:8px;align-items:center;
+      white-space:nowrap;
+    }
+    .dot{width:8px;height:8px;border-radius:999px;background:var(--muted)}
+    .dot.ok{background: var(--primary)}
+    .dot.off{background: #ffd166}
+    .card{
+      border:1px solid rgba(255,255,255,.08);
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding:14px;
+    }
+    .grid{display:grid;gap:12px}
+    .row2{display:grid;gap:12px}
+    @media (min-width: 640px){ .row2{grid-template-columns: 1fr 1fr} }
+
+    label{font-size:12px;color:var(--muted)}
+    input, select, textarea{
+      width:100%;
+      padding:10px 12px;
+      margin-top:6px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: transparent;
+      color: var(--text);
+      outline:none;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    /* Mejor visibilidad para selects (opciones) */
+    select{
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+    }
+    /* Nota: el estilo de <option> depende del navegador; esto mejora en la mayoría */
+    select option{
+      background: var(--bg);
+      color: var(--text);
+    }
+    select:focus{
+      border-color: rgba(var(--primaryRgb), .6);
+      box-shadow: 0 0 0 3px rgba(var(--primaryRgb), .18);
+    }
+
+    textarea{min-height:72px;resize:vertical}
+    .btn{
+      width:100%;
+      padding:11px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: var(--primary);
+      color:#07120b;
+      font-weight:700;
+      cursor:pointer;
+      font-size:14px;
+    }
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+
+    .small{font-size:12px;color:var(--muted);line-height:1.35}
+    .kpi{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}
+    .kpi .pill{padding:5px 9px}
+
+    .list{
+      margin-top:10px;
+      border-top:1px solid rgba(255,255,255,.06);
+      padding-top:10px;
+      display:grid;
+      gap:8px;
+    }
+    .item{
+      border:1px solid rgba(255,255,255,.08);
+      background: var(--surface2);
+      border-radius: 12px;
+      padding:10px;
+      display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+    }
+    .item b{font-size:13px}
+    .item .meta{font-size:12px;color:var(--muted);margin-top:3px}
+    .tag{
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    .tag.pending{border-color: rgba(255,209,102,.35); color:#fff1c2}
+    .tag.synced{border-color: rgba(var(--primaryRgb),.35); color:#bff8dc}
+    .warn{color:#fff1c2}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;}
+    .hide{display:none}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Registro de visita (campo)</h1>
+        <div class="sub">
+          En la comunidad: mira la pantalla del Arduino y escribe los valores aquí (offline).
+          <br>En la ciudad: al abrir esta app con internet, se sincroniza automáticamente a Airtable.
+        </div>
+      </div>
+      <div class="pill" id="netPill"><span class="dot off" id="netDot"></span><span id="netText">Offline</span></div>
+    </header>
+
+    <div class="grid">
+
+      <div class="card">
+        <div class="row2">
+          <div>
+            <label>Colmena / Caja</label>
+            <input id="hive" placeholder="Ej: AB-01" inputmode="text" autocomplete="off">
+          </div>
+          <div>
+            <label>Fecha y hora</label>
+            <input id="when" type="datetime-local">
+          </div>
+        </div>
+
+        <div class="row2" style="margin-top:12px">
+          <div>
+            <label>Temperatura (°C)</label>
+            <input id="temp" type="number" step="0.1" inputmode="decimal" placeholder="Ej: 29.5">
+          </div>
+          <div>
+            <label>Humedad (%)</label>
+            <input id="hum" type="number" step="1" inputmode="numeric" placeholder="Ej: 88">
+          </div>
+        </div>
+
+        <!-- Chequeo rápido (para control semanal sin abrir la caja) -->
+        <div style="margin-top:12px">
+          <label>Chequeo rápido (30 segundos)</label>
+          <div class="row2" style="margin-top:8px">
+            <div>
+              <label>Actividad en la entrada</label>
+              <select id="activity">
+                <option value="media" selected>Media</option>
+                <option value="alta">Alta</option>
+                <option value="baja">Baja</option>
+                <option value="no_obs">No observado</option>
+              </select>
+            </div>
+            <div>
+              <label>Plagas visibles</label>
+              <select id="pests">
+                <option value="ninguna" selected>Ninguna</option>
+                <option value="hormigas">Hormigas</option>
+                <option value="mosquitas">Mosquitas (fóridas)</option>
+                <option value="ambas">Hormigas + mosquitas</option>
+                <option value="otros">Otros</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row2" style="margin-top:12px">
+            <div>
+              <label>Humedad visible / moho</label>
+              <select id="mold">
+                <option value="seco" selected>Seco</option>
+                <option value="humedo">Húmedo</option>
+                <option value="moho">Moho</option>
+              </select>
+            </div>
+            <div>
+              <label>Estado de la caja</label>
+              <select id="boxState">
+                <option value="ok" selected>OK</option>
+                <option value="grietas">Grietas / huecos</option>
+                <option value="techo">Techo con filtración</option>
+                <option value="inclinada">Caja inclinada</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <label>Sombra / exposición</label>
+            <select id="shade">
+              <option value="sombra" selected>Sombra</option>
+              <option value="parcial">Parcial</option>
+              <option value="sol">Sol directo</option>
+            </select>
+          </div>
+
+          <div class="small" style="margin-top:8px">Si hiciste una acción (limpieza, barrera anti-hormigas, reparar techo), escríbelo en <b>Notas</b>.</div>
+        </div>
+
+        <div style="margin-top:12px">
+          <label>Notas (opcional)</label>
+          <textarea id="note" placeholder="Ej: hormigas, techo, lluvia, actividad..."></textarea>
+        </div>
+
+        <div style="margin-top:12px">
+          <button class="btn" id="saveBtn">Guardar lectura</button>
+          <div class="small" id="saveMsg" style="margin-top:8px"></div>
+        </div>
+
+        <div class="kpi">
+          <div class="pill">Pendientes: <b id="pendingCount">0</b></div>
+          <div class="pill">Sincronizadas: <b id="syncedCount">0</b></div>
+          <div class="pill">Última sync: <b id="lastSync">--</b></div>
+        </div>
+
+        <div class="small" style="margin-top:10px" id="syncHint">
+          <span class="warn">Nota:</span> la sincronización ocurre <b>solo cuando abres esta app</b> y hay internet.
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <div>
+            <b style="font-size:13px">Últimas lecturas</b>
+            <div class="small">Muestra las últimas 8 (solo lectura). No hay exportar/borrar para evitar confusión.</div>
+          </div>
+          <div class="tag" id="syncTag">SYNC: --</div>
+        </div>
+
+        <div class="list" id="list"></div>
+      </div>
+
+      <!-- Config oculto (no visible para el usuario de campo).
+           Mantén presionado el título 1.4s para mostrar/ocultar. -->
+      <div class="card hide" id="configCard">
+        <b style="font-size:13px">Configuración (solo admin)</b>
+        <div class="small" style="margin-top:6px">Guarda el token en este dispositivo. No publiques este archivo con el token.</div>
+        <div style="margin-top:10px">
+          <label>Airtable token (PAT)</label>
+          <input id="token" placeholder="pat_..." autocomplete="off">
+        </div>
+        <div style="margin-top:10px">
+          <button class="btn" id="saveTokenBtn">Guardar token</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+(function(){
+  // ============================
+  // Config Airtable (TU BASE)
+  // ============================
+  var AIRTABLE_BASE_ID = "app4H6LLNjlgbCTsw";
+  var AIRTABLE_TABLE_NAME = "Table 1"; // tabla existente
+  var AIRTABLE_STATUS_VALUE = "OK";
+
+  var STORAGE_KEY = "ab_field_entries_v1";
+  var META_KEY = "ab_field_meta_v1";
+
+  function $(id){ return document.getElementById(id); }
+
+  var elHive = $("hive");
+  var elWhen = $("when");
+  var elTemp = $("temp");
+  var elHum  = $("hum");
+  var elActivity = $("activity");
+  var elPests = $("pests");
+  var elMold = $("mold");
+  var elBoxState = $("boxState");
+  var elShade = $("shade");
+  var elNote = $("note");
+  var elSave = $("saveBtn");
+  var elMsg  = $("saveMsg");
+
+  var elPending = $("pendingCount");
+  var elSynced  = $("syncedCount");
+  var elLastSync= $("lastSync");
+  var elList    = $("list");
+  var elNetText = $("netText");
+  var elNetDot  = $("netDot");
+  var elSyncTag = $("syncTag");
+
+  var elConfig  = $("configCard");
+  var elToken   = $("token");
+  var elSaveToken = $("saveTokenBtn");
+
+  function pad2(n){ return (n<10? "0":"") + n; }
+
+  function toDatetimeLocalValue(d){
+    return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate()) +
+      "T" + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+  }
+
+  function loadAll(){
+    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+    catch(e){ return []; }
+  }
+
+  function saveAll(rows){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(rows)); } catch(e){}
+  }
+
+  function loadMeta(){
+    try{ return JSON.parse(localStorage.getItem(META_KEY) || "{}"); }
+    catch(e){ return {}; }
+  }
+
+  function saveMeta(meta){
+    try{ localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch(e){}
+  }
+
+  function getDeviceId(){
+    var meta = loadMeta();
+    if (!meta.deviceId){
+      meta.deviceId = "dev_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+      saveMeta(meta);
+    }
+    return meta.deviceId;
+  }
+
+  function getToken(){
+    var meta = loadMeta();
+    return meta.airtableToken || "";
+  }
+
+  function setToken(t){
+    var meta = loadMeta();
+    meta.airtableToken = t;
+    saveMeta(meta);
+  }
+
+  function fmtNum(n, d){
+    if (n === null || n === undefined || isNaN(n)) return "--";
+    return Number(n).toFixed(d);
+  }
+
+  function isOnline(){ return !!navigator.onLine; }
+
+  function setNetUI(){
+    if (isOnline()){
+      elNetText.textContent = "Online";
+      elNetDot.className = "dot ok";
+    } else {
+      elNetText.textContent = "Offline";
+      elNetDot.className = "dot off";
+    }
+  }
+
+  function setSyncTag(text){ elSyncTag.textContent = text; }
+
+  function showMsg(text, ok){
+    elMsg.textContent = text;
+    elMsg.style.color = ok ? "#bff8dc" : "#fff1c2";
+  }
+
+  function render(){
+    var rows = loadAll();
+    var pending = 0, synced = 0;
+
+    for (var i=0;i<rows.length;i++){
+      if (rows[i].synced) synced++;
+      else pending++;
+    }
+    elPending.textContent = String(pending);
+    elSynced.textContent = String(synced);
+
+    var meta = loadMeta();
+    elLastSync.textContent = meta.lastSyncAt ? meta.lastSyncAt : "--";
+
+    rows.sort(function(a,b){ return (b.ts - a.ts); });
+    var last = rows.slice(0, 8);
+
+    elList.innerHTML = "";
+    for (var j=0;j<last.length;j++){
+      var r = last[j];
+      var div = document.createElement("div");
+      div.className = "item";
+
+      var left = document.createElement("div");
+      var title = document.createElement("b");
+      title.textContent = r.hive + " · " + fmtNum(r.temp,1) + "C · " + fmtNum(r.hum,0) + "%";
+      var metaLine = document.createElement("div");
+      metaLine.className = "meta";
+      var extra = [];
+      if (r.activity && r.activity !== "media") extra.push("Act:" + r.activity);
+      if (r.pests && r.pests !== "ninguna") extra.push("Plagas:" + r.pests);
+      if (r.mold && r.mold !== "seco") extra.push("Moho:" + r.mold);
+      if (r.boxState && r.boxState !== "ok") extra.push("Caja:" + r.boxState);
+      // Sombra normalmente es estable; solo muéstrala si es Sol directo
+      if (r.shade && r.shade === "sol") extra.push("Sol");
+
+      var baseLine = (r.whenLocal || r.whenISO || "");
+      var noteLine = (r.note ? " · " + r.note : "");
+      var extraLine = (extra.length ? " · " + extra.join(" · ") : "");
+      metaLine.textContent = baseLine + noteLine + extraLine;
+
+      left.appendChild(title);
+      left.appendChild(metaLine);
+
+      var tag = document.createElement("div");
+      tag.className = "tag " + (r.synced ? "synced" : "pending");
+      tag.textContent = r.synced ? "SYNC" : "PEND";
+
+      div.appendChild(left);
+      div.appendChild(tag);
+      elList.appendChild(div);
+    }
+  }
+
+  function saveEntry(){
+    var hive = (elHive.value || "").trim();
+    var whenVal = elWhen.value;
+    var tempVal = elTemp.value;
+    var humVal  = elHum.value;
+    var noteVal = (elNote.value || "").trim();
+
+    // Chequeo rápido
+    var activityVal = (elActivity && elActivity.value) ? elActivity.value : "media";
+    var pestsVal    = (elPests && elPests.value) ? elPests.value : "ninguna";
+    var moldVal     = (elMold && elMold.value) ? elMold.value : "seco";
+    var boxVal      = (elBoxState && elBoxState.value) ? elBoxState.value : "ok";
+    var shadeVal    = (elShade && elShade.value) ? elShade.value : "sombra";
+
+    if (!hive){ showMsg("Escribe el código de la colmena (ej: AB-01).", false); return; }
+    if (tempVal === "" || humVal === ""){ showMsg("Completa temperatura y humedad.", false); return; }
+
+    var temp = Number(tempVal);
+    var hum = Number(humVal);
+    if (isNaN(temp) || isNaN(hum)){ showMsg("Valores inválidos. Revisa números.", false); return; }
+
+    var whenISO = "";
+    var whenLocalText = "";
+    try{
+      var d = whenVal ? new Date(whenVal) : new Date();
+      whenISO = d.toISOString();
+      whenLocalText = d.toLocaleString();
+    }catch(e){
+      var dd = new Date();
+      whenISO = dd.toISOString();
+      whenLocalText = dd.toLocaleString();
+    }
+
+    var deviceId = getDeviceId();
+    var id = deviceId + "_" + Date.now() + "_" + Math.random().toString(16).slice(2,8);
+
+    var rows = loadAll();
+    rows.push({
+      id: id,
+      deviceId: deviceId,
+      hive: hive,
+      whenISO: whenISO,
+      whenLocal: whenLocalText,
+      ts: Date.now(),
+      temp: temp,
+      hum: hum,
+      activity: activityVal,
+      pests: pestsVal,
+      mold: moldVal,
+      boxState: boxVal,
+      shade: shadeVal,
+      note: noteVal,
+      synced: false,
+      syncedAt: null,
+      attempts: 0,
+      lastError: null
+    });
+    saveAll(rows);
+
+    elTemp.value = "";
+    elHum.value  = "";
+    elNote.value = "";
+
+    showMsg("Guardado (offline).", true);
+    render();
+    scheduleSyncSoon();
+  }
+
+  var syncing = false;
+  var syncTimer = null;
+
+  function scheduleSyncSoon(){
+    if (syncTimer) return;
+    syncTimer = setTimeout(function(){
+      syncTimer = null;
+      trySync();
+    }, 1200);
+  }
+
+  function updateMetaLastSync(text){
+    var meta = loadMeta();
+    meta.lastSyncAt = text;
+    saveMeta(meta);
+  }
+
+  function markSynced(ids){
+    var rows = loadAll();
+    var now = (new Date()).toLocaleString();
+
+    for (var i=0;i<rows.length;i++){
+      if (!rows[i].synced){
+        for (var j=0;j<ids.length;j++){
+          if (rows[i].id === ids[j]){
+            rows[i].synced = true;
+            rows[i].syncedAt = now;
+            rows[i].lastError = null;
+          }
+        }
+      }
+    }
+
+    // Limpieza automática: borra del dispositivo los SYNC muy antiguos (30 días)
+    var cutoff = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    var kept = [];
+    for (var k=0;k<rows.length;k++){
+      if (rows[k].synced && rows[k].ts < cutoff) {
+        // drop
+      } else {
+        kept.push(rows[k]);
+      }
+    }
+
+    saveAll(kept);
+    updateMetaLastSync(now);
+  }
+
+  function markFailed(ids, errorText){
+    var rows = loadAll();
+    for (var i=0;i<rows.length;i++){
+      for (var j=0;j<ids.length;j++){
+        if (rows[i].id === ids[j]){
+          rows[i].attempts = (rows[i].attempts || 0) + 1;
+          rows[i].lastError = errorText || "Error";
+        }
+      }
+    }
+    saveAll(rows);
+  }
+
+  function pickPendingBatch(limit){
+    var rows = loadAll();
+    rows.sort(function(a,b){ return (a.ts - b.ts); });
+    var out = [];
+    for (var i=0;i<rows.length;i++){
+      if (!rows[i].synced){
+        out.push(rows[i]);
+        if (out.length >= limit) break;
+      }
+    }
+    return out;
+  }
+
+  function buildAirtableRecord(r){
+    var notesObj = {
+      client_id: r.id,
+      device_id: r.deviceId,
+      hive: r.hive,
+      when_iso: r.whenISO,
+      when_local: r.whenLocal,
+      t_air: r.temp,
+      h_air: r.hum,
+      activity: r.activity || "media",
+      pests: r.pests || "ninguna",
+      mold: r.mold || "seco",
+      box_state: r.boxState || "ok",
+      shade: r.shade || "sombra",
+      note: r.note || ""
+    };
+    var notesText = JSON.stringify(notesObj);
+    var name = r.hive + " " + (r.whenLocal || "");
+
+    return {
+      fields: {
+        "Name": name,
+        "Notes": notesText,
+        "Status": AIRTABLE_STATUS_VALUE
+      }
+    };
+  }
+
+  function trySync(){
+    if (syncing) return;
+    setNetUI();
+
+    if (!isOnline()){
+      setSyncTag("SYNC: OFFLINE");
+      return;
+    }
+
+    var token = getToken();
+    if (!token){
+      setSyncTag("SYNC: TOKEN?");
+      return;
+    }
+
+    var batch = pickPendingBatch(10);
+    if (!batch.length){
+      setSyncTag("SYNC: OK");
+      return;
+    }
+
+    syncing = true;
+    setSyncTag("SYNC: SUBIENDO...");
+    elSave.disabled = true;
+
+    var records = [];
+    var ids = [];
+    for (var i=0;i<batch.length;i++){
+      records.push(buildAirtableRecord(batch[i]));
+      ids.push(batch[i].id);
+    }
+
+    var url = "https://api.airtable.com/v0/" + encodeURIComponent(AIRTABLE_BASE_ID) + "/" + encodeURIComponent(AIRTABLE_TABLE_NAME);
+    var payload = JSON.stringify({ records: records, typecast: true });
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json"
+      },
+      body: payload
+    }).then(function(res){
+      if (!res.ok){
+        return res.text().then(function(t){ throw new Error("HTTP " + res.status + " " + t); });
+      }
+      return res.json();
+    }).then(function(){
+      markSynced(ids);
+      showMsg("Sincronizado a Airtable.", true);
+      setSyncTag("SYNC: OK");
+    }).catch(function(err){
+      markFailed(ids, String(err && err.message ? err.message : err));
+      showMsg("No se pudo sincronizar (se intentará luego).", false);
+      setSyncTag("SYNC: ERROR");
+    }).finally(function(){
+      syncing = false;
+      elSave.disabled = false;
+      render();
+
+      if (isOnline()){
+        setTimeout(function(){ trySync(); }, 1500);
+      }
+    });
+  }
+
+  // Admin: abrir config (oculto)
+  var pressTimer = null;
+  var headerTitle = document.querySelector("h1");
+  headerTitle.addEventListener("touchstart", function(){
+    pressTimer = setTimeout(function(){
+      elConfig.classList.toggle("hide");
+      elToken.value = getToken();
+    }, 1400);
+  }, {passive:true});
+  headerTitle.addEventListener("touchend", function(){
+    if (pressTimer) clearTimeout(pressTimer);
+    pressTimer = null;
+  });
+
+  headerTitle.addEventListener("mousedown", function(){
+    pressTimer = setTimeout(function(){
+      elConfig.classList.toggle("hide");
+      elToken.value = getToken();
+    }, 1400);
+  });
+  headerTitle.addEventListener("mouseup", function(){
+    if (pressTimer) clearTimeout(pressTimer);
+    pressTimer = null;
+  });
+
+  elSaveToken.addEventListener("click", function(){
+    var t = (elToken.value || "").trim();
+    if (!t){ alert("Token vacío."); return; }
+    setToken(t);
+    elConfig.classList.add("hide");
+    showMsg("Token guardado en este dispositivo.", true);
+    setTimeout(function(){ trySync(); }, 500);
+  });
+
+  function init(){
+    elWhen.value = toDatetimeLocalValue(new Date());
+
+    setNetUI();
+    window.addEventListener("online", function(){ setNetUI(); scheduleSyncSoon(); });
+    window.addEventListener("offline", function(){ setNetUI(); });
+
+    elSave.addEventListener("click", function(){ saveEntry(); });
+
+    render();
+
+    // sync loop: si está abierta la app en ciudad, sube automáticamente
+    setInterval(function(){
+      if (isOnline()) trySync();
+    }, 15000);
+
+    scheduleSyncSoon();
+
+    if ("serviceWorker" in navigator){
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
