@@ -284,18 +284,50 @@
     <div class="grid">
 
       <div class="card">
-        <div class="sectionTitle">Datos de la colmena</div>
+        <div class="sectionTitle">Datos de la visita</div>
 
         <div class="row2">
           <div>
-            <label>Colmena / Caja</label>
-            <input id="hive" placeholder="Ej: AB-01" inputmode="text" autocomplete="off">
+            <label>Nombre del voluntario</label>
+            <input id="volunteer" placeholder="Ej: María López" inputmode="text" autocomplete="name">
           </div>
 
           <div>
-            <label>Fecha y hora automática</label>
-            <input id="when" type="text" readonly aria-readonly="true" inputmode="none">
+            <label>Semana de seguimiento</label>
+            <select id="week">
+              <option value="">Seleccionar semana</option>
+              <option value="1">Semana 1</option>
+              <option value="2">Semana 2</option>
+              <option value="3">Semana 3</option>
+              <option value="4">Semana 4</option>
+              <option value="5">Semana 5</option>
+              <option value="6">Semana 6</option>
+              <option value="7">Semana 7</option>
+              <option value="8">Semana 8</option>
+              <option value="9">Semana 9</option>
+              <option value="10">Semana 10</option>
+              <option value="11">Semana 11</option>
+              <option value="12">Semana 12</option>
+              <option value="13">Semana 13</option>
+            </select>
           </div>
+        </div>
+
+        <div class="row2" style="margin-top:12px">
+          <div>
+            <label>Colegio</label>
+            <input id="school" type="text" readonly aria-readonly="true">
+          </div>
+
+          <div>
+            <label>Colmena / Caja</label>
+            <input id="hive" type="text" readonly aria-readonly="true">
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <label>Fecha y hora automática</label>
+          <input id="when" type="text" readonly aria-readonly="true" inputmode="none">
         </div>
 
         <div style="margin-top:14px" class="sectionTitle">Lectura del Arduino</div>
@@ -488,11 +520,20 @@
   var AIRTABLE_TABLE_NAME = "Table 1";
   var AIRTABLE_STATUS_VALUE = "OK";
 
-  var STORAGE_KEY = "ab_field_entries_v1";
+  // Datos fijos porque por ahora existe un solo colegio y una sola colmena.
+  // Cambia estos dos textos cuando tengas el nombre definitivo del colegio.
+  var SCHOOL_NAME = "Colegio 01";
+  var HIVE_CODE = "AB-01";
+
+  // v2 separa los nuevos registros de los registros antiguos sin voluntario/semana.
+  var STORAGE_KEY = "ab_field_entries_v2";
   var META_KEY = "ab_field_meta_v1";
 
   function $(id){ return document.getElementById(id); }
 
+  var elVolunteer = $("volunteer");
+  var elWeek = $("week");
+  var elSchool = $("school");
   var elHive = $("hive");
   var elWhen = $("when");
   var elTemp = $("temp");
@@ -818,7 +859,9 @@
 
       var title = document.createElement("b");
       title.textContent =
-        r.hive + " · " +
+        "Semana " + (r.week || "--") + " · " +
+        (r.volunteer || "Sin nombre") + " · " +
+        (r.hive || HIVE_CODE) + " · " +
         fmtNum(r.temp,1) + "C · " +
         fmtNum(r.hum,0) + "% · " +
         "Sonido: " + labelValue("soundLevel", r.soundLevel || "no_medido");
@@ -886,7 +929,14 @@
   }
 
   function saveEntry(){
-    var hive = (elHive.value || "").trim();
+    var volunteer = (elVolunteer.value || "").trim();
+    var week = Number(elWeek.value);
+    var school = SCHOOL_NAME;
+    var hive = HIVE_CODE;
+
+    // La fecha y hora se actualizan justo al guardar.
+    var now = new Date();
+    elWhen.value = toDatetimeLocalValue(now);
     var whenVal = elWhen.value;
     var tempVal = elTemp.value;
     var humVal  = elHum.value;
@@ -905,8 +955,15 @@
     var actionVal = elActionTaken.value || "ninguna";
     var noteVal = (elNote.value || "").trim();
 
-    if (!hive){
-      showMsg("Escribe el código de la colmena. Ejemplo: AB-01.", false);
+    if (!volunteer){
+      showMsg("Escribe el nombre de la persona que realiza la visita.", false);
+      elVolunteer.focus();
+      return;
+    }
+
+    if (!Number.isInteger(week) || week < 1 || week > 13){
+      showMsg("Selecciona una semana entre 1 y 13.", false);
+      elWeek.focus();
       return;
     }
 
@@ -976,6 +1033,9 @@
     rows.push({
       id: id,
       deviceId: deviceId,
+      volunteer: volunteer,
+      week: week,
+      school: school,
       hive: hive,
       whenISO: whenISO,
       whenLocal: whenLocalText,
@@ -1007,6 +1067,12 @@
 
     saveAll(rows);
 
+    // Recordar el nombre en este dispositivo para facilitar las siguientes visitas.
+    var meta = loadMeta();
+    meta.lastVolunteer = volunteer;
+    meta.lastWeek = week;
+    saveMeta(meta);
+
     elTemp.value = "";
     elHum.value  = "";
     elSoundValue.value = "";
@@ -1024,7 +1090,7 @@
 
     updateRiskPreview();
 
-    showMsg("Guardado offline. Se sincronizará cuando vuelva internet.", true);
+    showMsg("Registro de " + volunteer + " · Semana " + week + " guardado. Se sincronizará cuando haya internet.", true);
     render();
     scheduleSyncSoon();
   }
@@ -1114,48 +1180,70 @@
 
   function buildAirtableRecord(r){
     var risk = r.risk || assessRisk(r);
+    var syncedISO = (new Date()).toISOString();
 
+    // Se conserva una copia completa en Notes como respaldo.
     var notesObj = {
       client_id: r.id,
       device_id: r.deviceId,
-
-      hive: r.hive,
+      voluntario: r.volunteer,
+      semana: r.week,
+      colegio: r.school,
+      colmena: r.hive,
       when_iso: r.whenISO,
       when_local: r.whenLocal,
-
       temperatura_c: r.temp,
       humedad_ambiental_pct: r.hum,
-
       sonido_nivel: r.soundLevel || "no_medido",
       sonido_valor_arduino: r.soundValue,
-
       agua_humedad_liquida: r.waterStatus || "no_medido",
       movimiento_inclinacion: r.movementStatus || "no_medido",
-
       actividad_entrada: r.activity || "media",
       plagas_visibles: r.pests || "ninguna",
       humedad_visible_moho: r.mold || "seco",
       estado_caja: r.boxState || "ok",
       sombra_exposicion: r.shade || "sombra",
       accion_realizada: r.actionTaken || "ninguna",
-
       riesgo_nivel: risk.level,
       riesgo_titulo: risk.title,
       riesgo_detalle: risk.detail,
-
       nota: r.note || ""
     };
 
-    var notesText = JSON.stringify(notesObj);
-    var name = r.hive + " " + (r.whenLocal || "");
-
-    return {
-      fields: {
-        "Name": name,
-        "Notes": notesText,
-        "Status": AIRTABLE_STATUS_VALUE
-      }
+    var fields = {
+      "Name": "Semana " + r.week + " - " + r.volunteer,
+      "Notes": JSON.stringify(notesObj),
+      "Status": AIRTABLE_STATUS_VALUE,
+      "ID de registro": r.id,
+      "Voluntario": r.volunteer,
+      "Semana": r.week,
+      "Colegio": r.school || SCHOOL_NAME,
+      "Colmena": r.hive || HIVE_CODE,
+      "Fecha y hora": r.whenISO,
+      "Temperatura °C": r.temp,
+      "Humedad ambiental %": r.hum,
+      "Nivel de sonido": labelValue("soundLevel", r.soundLevel || "no_medido"),
+      "Agua detectada": labelValue("waterStatus", r.waterStatus || "no_medido"),
+      "Movimiento de caja": labelValue("movementStatus", r.movementStatus || "no_medido"),
+      "Nivel de riesgo": String(risk.level || "").toUpperCase(),
+      "Detalle del riesgo": risk.detail,
+      "Actividad de entrada": labelValue("activity", r.activity || "media"),
+      "Plagas visibles": labelValue("pests", r.pests || "ninguna"),
+      "Humedad visible / moho": labelValue("mold", r.mold || "seco"),
+      "Estado de la caja": labelValue("boxState", r.boxState || "ok"),
+      "Sombra / exposición": labelValue("shade", r.shade || "sombra"),
+      "Acción realizada": labelValue("actionTaken", r.actionTaken || "ninguna"),
+      "Notas de campo": r.note || "",
+      "ID del dispositivo": r.deviceId,
+      "Fecha de sincronización": syncedISO
     };
+
+    // El campo numérico se envía solo cuando existe una lectura.
+    if (r.soundValue !== null && r.soundValue !== undefined && r.soundValue !== ""){
+      fields["Valor sensor sonido"] = Number(r.soundValue);
+    }
+
+    return { fields: fields };
   }
 
   function trySync(){
@@ -1310,7 +1398,13 @@
   }
 
   function init(){
+    var meta = loadMeta();
+
+    elSchool.value = SCHOOL_NAME;
+    elHive.value = HIVE_CODE;
     elWhen.value = toDatetimeLocalValue(new Date());
+    elVolunteer.value = meta.lastVolunteer || "";
+    elWeek.value = meta.lastWeek ? String(meta.lastWeek) : "";
 
     setNetUI();
 
@@ -1332,6 +1426,7 @@
     render();
 
     setInterval(function(){
+      elWhen.value = toDatetimeLocalValue(new Date());
       if (isOnline()) trySync();
     }, 15000);
 
