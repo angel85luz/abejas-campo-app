@@ -492,33 +492,14 @@
         <div class="list" id="list"></div>
       </div>
 
-      <div class="card hide" id="configCard">
-        <b style="font-size:13px">Configuración solo admin</b>
-        <div class="small" style="margin-top:6px">
-          Mantén presionado el título para abrir/cerrar esta sección.
-        </div>
-
-        <div style="margin-top:10px">
-          <label>Airtable token PAT</label>
-          <input id="token" placeholder="pat_..." autocomplete="off">
-        </div>
-
-        <div style="margin-top:10px">
-          <button class="btn" id="saveTokenBtn">Guardar token</button>
-        </div>
-      </div>
-
     </div>
   </div>
 
 <script>
 (function(){
-  // ============================
-  // Config Airtable
-  // ============================
-  var AIRTABLE_BASE_ID = "app4H6LLNjlgbCTsw";
-  var AIRTABLE_TABLE_NAME = "Table 1";
-  var AIRTABLE_STATUS_VALUE = "OK";
+  // La sincronización se realiza mediante /api/sync.
+  // El token de Airtable permanece oculto en las variables de entorno de Vercel.
+var AIRTABLE_STATUS_VALUE = "OK";
 
   // Datos fijos porque por ahora existe un solo colegio y una sola colmena.
   // Cambia estos dos textos cuando tengas el nombre definitivo del colegio.
@@ -566,12 +547,7 @@
   var elNetText = $("netText");
   var elNetDot  = $("netDot");
   var elSyncTag = $("syncTag");
-
-  var elConfig  = $("configCard");
-  var elToken   = $("token");
-  var elSaveToken = $("saveTokenBtn");
-
-  function pad2(n){
+function pad2(n){
     return (n < 10 ? "0" : "") + n;
   }
 
@@ -616,19 +592,7 @@
     }
     return meta.deviceId;
   }
-
-  function getToken(){
-    var meta = loadMeta();
-    return meta.airtableToken || "";
-  }
-
-  function setToken(t){
-    var meta = loadMeta();
-    meta.airtableToken = t;
-    saveMeta(meta);
-  }
-
-  function fmtNum(n, d){
+function fmtNum(n, d){
     if (n === null || n === undefined || n === "" || isNaN(n)) return "--";
     return Number(n).toFixed(d);
   }
@@ -1255,15 +1219,7 @@
       setSyncTag("SYNC: OFFLINE");
       return;
     }
-
-    var token = getToken();
-
-    if (!token){
-      setSyncTag("SYNC: TOKEN?");
-      return;
-    }
-
-    var batch = pickPendingBatch(10);
+var batch = pickPendingBatch(10);
 
     if (!batch.length){
       setSyncTag("SYNC: OK");
@@ -1281,20 +1237,13 @@
       records.push(buildAirtableRecord(batch[i]));
       ids.push(batch[i].id);
     }
-
-    var url = "https://api.airtable.com/v0/" +
-      encodeURIComponent(AIRTABLE_BASE_ID) + "/" +
-      encodeURIComponent(AIRTABLE_TABLE_NAME);
-
     var payload = JSON.stringify({
-      records: records,
-      typecast: true
+      records: records
     });
 
-    fetch(url, {
+    fetch("/api/sync", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer " + token,
         "Content-Type": "application/json"
       },
       body: payload
@@ -1325,53 +1274,6 @@
       }
     });
   }
-
-  var pressTimer = null;
-  var headerTitle = document.querySelector("h1");
-
-  function toggleAdmin(){
-    elConfig.classList.toggle("hide");
-    elToken.value = getToken();
-  }
-
-  headerTitle.addEventListener("touchstart", function(){
-    pressTimer = setTimeout(function(){
-      toggleAdmin();
-    }, 1400);
-  }, {passive:true});
-
-  headerTitle.addEventListener("touchend", function(){
-    if (pressTimer) clearTimeout(pressTimer);
-    pressTimer = null;
-  });
-
-  headerTitle.addEventListener("mousedown", function(){
-    pressTimer = setTimeout(function(){
-      toggleAdmin();
-    }, 1400);
-  });
-
-  headerTitle.addEventListener("mouseup", function(){
-    if (pressTimer) clearTimeout(pressTimer);
-    pressTimer = null;
-  });
-
-  elSaveToken.addEventListener("click", function(){
-    var t = (elToken.value || "").trim();
-
-    if (!t){
-      alert("Token vacío.");
-      return;
-    }
-
-    setToken(t);
-    elConfig.classList.add("hide");
-    showMsg("Token guardado en este dispositivo.", true);
-
-    setTimeout(function(){
-      trySync();
-    }, 500);
-  });
 
   function bindRiskInputs(){
     var ids = [
