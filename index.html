@@ -240,17 +240,51 @@
       background:rgba(255,255,255,.035);
     }
 
-    .riskNormal{
-      color:#bff8dc;
+    .risk-normal{
+      --riskAccent:#4ade80;
+      --riskTint:rgba(74,222,128,.09);
+      --riskText:#c8fbd9;
     }
 
-    .riskCheck{
-      color:#fff1c2;
+    .risk-revisar{
+      --riskAccent:#facc15;
+      --riskTint:rgba(250,204,21,.09);
+      --riskText:#fff1ad;
     }
 
-    .riskAlert{
-      color:#ffb3b3;
+    .risk-alerta{
+      --riskAccent:#f87171;
+      --riskTint:rgba(248,113,113,.09);
+      --riskText:#ffd0d0;
     }
+
+    .risk-pendiente{
+      --riskAccent:#9fb0d0;
+      --riskTint:rgba(159,176,208,.06);
+      --riskText:#d3def2;
+    }
+
+    .riskBox, .item{
+      border-left:5px solid var(--riskAccent, #9fb0d0);
+      background:var(--riskTint, var(--surface2));
+    }
+
+    .riskBadge{
+      display:inline-block;
+      padding:7px 10px;
+      border:1px solid var(--riskAccent, #9fb0d0);
+      border-radius:10px;
+      background:var(--riskTint, transparent);
+      color:var(--riskText, var(--text));
+      font-size:13px;
+      font-weight:700;
+      line-height:1.5;
+      white-space:normal;
+    }
+
+    .item .riskBadge{display:block;width:fit-content;margin-bottom:8px}
+    .riskReason{margin-top:8px;line-height:1.5}
+    .riskLegend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px}
 
     .warn{
       color:#fff1c2;
@@ -349,11 +383,6 @@
                 <option value="si">Sí</option>
               </select>
             </div>
-          </div>
-
-          <div class="riskBox" id="riskBox" aria-live="polite">
-            <b id="riskTitle">Riesgo: --</b>
-            <div class="small" id="riskDetail" style="margin-top:4px">Completa los datos para calcular una alerta simple.</div>
           </div>
 
           <div style="margin-top:14px" class="sectionTitle">Chequeo visual rápido</div>
@@ -475,6 +504,15 @@
             <label for="note">Observaciones (opcional)</label>
             <textarea id="note" name="note" placeholder="Escribe tus observaciones, si las tienes."></textarea>
           </div>
+          <div class="riskBox risk-pendiente" id="riskBox" role="status" aria-live="polite" aria-atomic="true">
+            <div class="sectionTitle">Semáforo de la colmena</div>
+            <div class="riskBadge risk-pendiente" id="riskTitle">⚪ Riesgo: --</div>
+            <div class="small riskReason" id="riskDetail">Completa las lecturas y el chequeo visual.</div>
+            <div class="small riskLegend" aria-label="Significado de los colores">
+              <span>🟢 NORMAL</span><span>🟡 REVISAR</span><span>🔴 ALERTA</span>
+            </div>
+            <div class="small" style="margin-top:8px">El color corresponde al nivel de riesgo de esta visita.</div>
+          </div>
           <div style="margin-top:12px">
             <button class="btn" id="saveBtn" type="submit">Guardar lectura</button>
             <div class="small" id="saveMsg" style="margin-top:8px" role="status" aria-live="polite"></div>
@@ -496,6 +534,7 @@
           <div>
             <b style="font-size:13px">Últimas lecturas</b>
             <div class="small">Muestra las últimas 8 lecturas guardadas en este dispositivo.</div>
+            <div class="small">Cada lectura tiene su semáforo y el motivo del color.</div>
           </div>
           <div class="tag" id="syncTag">SYNC: --</div>
         </div>
@@ -522,6 +561,13 @@
   // Se conserva la clave para leer las visitas guardadas con la versión anterior.
   var STORAGE_KEY = "ab_field_entries_v2";
   var META_KEY = "ab_field_meta_v1";
+  // Colores y texto accesible: el estado se entiende sin distinguir los colores.
+  var TRAFFIC_LIGHTS = {
+    normal:{css:"risk-normal", label:"🟢 NORMAL"},
+    revisar:{css:"risk-revisar", label:"🟡 REVISAR"},
+    alerta:{css:"risk-alerta", label:"🔴 ALERTA"},
+    pendiente:{css:"risk-pendiente", label:"⚪ Riesgo: --"}
+  };
   var GROUPS = ["boxState", "actionTaken"];
   var EXCLUSIVE = {boxState:"ok", actionTaken:"ninguna"};
   var OPTIONAL_NUMBERS = {
@@ -783,11 +829,18 @@
     }
     return {level:"normal", title:"Riesgo: NORMAL", detail:"No se registran señales fuertes de riesgo."};
   }
+  function trafficLight(risk){
+    var level = String(risk && risk.level || "").toLowerCase();
+    return Object.prototype.hasOwnProperty.call(TRAFFIC_LIGHTS, level)
+      ? TRAFFIC_LIGHTS[level] : TRAFFIC_LIGHTS.pendiente;
+  }
   function updateRiskPreview(){
     var risk = assessRisk(currentData());
-    $("riskTitle").textContent = risk.title;
+    var light = trafficLight(risk);
+    $("riskBox").className = "riskBox "+light.css;
+    $("riskTitle").textContent = light.label;
     $("riskDetail").textContent = risk.detail;
-    $("riskTitle").className = {normal:"riskNormal", revisar:"riskCheck", alerta:"riskAlert"}[risk.level] || "";
+    $("riskTitle").className = "riskBadge "+light.css;
   }
 
   function render(){
@@ -802,9 +855,13 @@
     $("list").textContent = "";
     rows.slice(0,8).forEach(function(row){
       var risk = row.risk || assessRisk(row);
+      var light = trafficLight(risk);
       var div = document.createElement("div");
-      div.className = "item";
+      div.className = "item "+light.css;
       var left = document.createElement("div");
+      var badge = document.createElement("div");
+      badge.className = "riskBadge "+light.css;
+      badge.textContent = light.label;
       var title = document.createElement("b");
       title.textContent = observerOf(row)+" · "+(row.hive || HIVE_CODE)+
         " · "+fmtNum(row.temp,1)+"°C · "+fmtNum(row.hum,0)+"% · Sonido: "+labelValue("soundLevel", row.soundLevel);
@@ -823,12 +880,16 @@
       Object.keys(OPTIONAL_NUMBERS).forEach(function(id){
         if (hasNumber(row[id])) extra.push(OPTIONAL_NUMBERS[id]+": "+Number(row[id]));
       });
-      extra.push(risk.title);
       var metaLine = document.createElement("div");
       metaLine.className = "meta";
       metaLine.textContent = (row.whenLocal || row.whenISO || "")+(row.note ? " · "+row.note : "")+" · "+extra.join(" · ");
+      left.appendChild(badge);
       left.appendChild(title);
       left.appendChild(metaLine);
+      var reason = document.createElement("div");
+      reason.className = "small riskReason";
+      reason.textContent = risk.detail || "No hay un detalle de riesgo registrado en esta visita.";
+      left.appendChild(reason);
       var tag = document.createElement("div");
       tag.className = "tag "+(row.synced ? "synced" : "pending");
       tag.textContent = row.synced ? "SYNC" : "PEND";
