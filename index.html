@@ -319,6 +319,11 @@
     .choice:focus-within{outline:2px solid var(--primary);outline-offset:2px}
     .groupError{color:#ffb3b3;font-size:12px;margin:6px 0 0;min-height:16px}
     .requiredNote{margin:0 0 14px}
+    details.help{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+    details.help summary{cursor:pointer;font-size:13px;font-weight:600}
+    details.help p, details.help li{font-size:12px;line-height:1.6;color:var(--muted)}
+    details.help a{color:#bff8dc}
+    .contextHint{margin-top:6px}
     .item>div:first-child{min-width:0;overflow-wrap:anywhere}
     @media (max-width:380px){header{flex-wrap:wrap}.kpi{gap:6px}}
 
@@ -331,7 +336,8 @@
       <div>
         <h1>Registro de visita (campo)</h1>
         <div class="sub">
-          En la comunidad: mira la pantalla del Arduino y escribe los valores aquí.
+          Melipona eburnea · Manacamiri, Maynas, Loreto.
+          <br>Lee el termohigrómetro y registra los valores y las observaciones.
           <br>La app funciona offline y sincroniza cuando vuelve internet.
         </div>
       </div>
@@ -345,7 +351,7 @@
       <div class="card">
         <form id="visitForm" novalidate>
           <div class="sectionTitle">Datos de la visita</div>
-          <p class="small requiredNote">Todos los campos son obligatorios, excepto Observaciones y las medidas de batumen y piquera indicadas como opcionales. En los grupos de casillas, marca al menos una opción.</p>
+          <p class="small requiredNote">Todos los campos mostrados son obligatorios, excepto Observaciones y las medidas de batumen y piquera indicadas como opcionales. En los grupos de casillas, marca al menos una opción. Si no puedes confirmar un dato, elige la opción que lo indique.</p>
 
           <div>
             <label for="observerName">Nombre y apellido del observador</label>
@@ -368,15 +374,64 @@
           </div>
 
           <div style="margin-top:14px" class="sectionTitle">Lecturas</div>
+          <div class="small">Pantalla afuera · Sonda de temperatura dentro de la colmena.</div>
+          <details class="help">
+            <summary>Cómo usar el termohigrómetro</summary>
+            <ol>
+              <li>El responsable instala la sonda en una posición fija y deja la pantalla afuera, protegida del sol directo y de la lluvia. Cada visita se lee desde afuera.</li>
+              <li>Lee la temperatura de la sonda con cable, identificada en el manual como sensor exterior. En esta instalación corresponde al interior de la colmena.</li>
+              <li>Confirma dónde está el sensor de humedad. La publicación del B0151 nc sólo documenta temperatura en la sonda. Si aún no lo sabes, selecciona «Sin confirmar».</li>
+              <li>Registra la lectura actual y espera a que se estabilice según el manual. MAX/MIN muestra extremos anteriores, no la lectura actual.</li>
+            </ol>
+            <p>Especificaciones anunciadas por el vendedor: temperatura de sonda −40 a 70 °C, precisión ±1 °C; humedad 10 a 99 %, precisión ±5 % HR. No se ha comprobado su calibración. Los valores se ingresan manualmente.</p>
+          </details>
           <div class="row2">
             <div>
               <label for="temp">Temperatura (°C)</label>
-              <input id="temp" name="temp" type="number" required step="0.1" inputmode="decimal" placeholder="Ej: 29.5">
+              <input id="temp" name="temp" type="number" required min="-40" max="70" step="0.1" inputmode="decimal" placeholder="Ej: 29.5" aria-describedby="tempHint">
+              <div id="tempHint" class="small contextHint">Temperatura interna: copia la lectura de la sonda dentro de la caja.</div>
             </div>
             <div>
               <label for="hum">Humedad ambiental (%)</label>
-              <input id="hum" name="hum" type="number" required step="1" min="0" max="100" inputmode="numeric" placeholder="Ej: 88">
+              <input id="hum" name="hum" type="number" required step="1" min="10" max="99" inputmode="numeric" placeholder="Ej: 88" aria-describedby="humHint">
+              <div id="humHint" class="small contextHint">Copia la humedad del equipo y señala dónde se mide. No presupongas que el cable también mide humedad.</div>
             </div>
+          </div>
+          <div class="row2" style="margin-top:12px">
+            <div>
+              <label for="tempProbePosition">Ubicación de la sonda dentro de la caja</label>
+              <select id="tempProbePosition" name="tempProbePosition" required>
+                <option value="">Seleccionar ubicación</option>
+                <option value="cerca_cria">Cerca de la cría</option>
+                <option value="bajo_tapa">Debajo de la tapa</option>
+                <option value="otra">Otra ubicación</option>
+                <option value="sin_confirmar">Sin confirmar</option>
+              </select>
+              <div id="tempProbeOtherWrap" hidden style="margin-top:8px">
+                <label for="tempProbeOther">Describe la otra ubicación de la sonda</label>
+                <input id="tempProbeOther" name="tempProbeOther" type="text" disabled placeholder="Ej: pared lateral del compartimento superior">
+              </div>
+            </div>
+            <div>
+              <label for="humidityLocation">Lugar donde se mide la humedad</label>
+              <select id="humidityLocation" name="humidityLocation" required>
+                <option value="">Seleccionar lugar</option>
+                <option value="externa_pantalla">Afuera, en el aparato (confirmado)</option>
+                <option value="interna_sonda">Dentro, en la sonda (confirmado)</option>
+                <option value="sin_confirmar">Sin confirmar</option>
+              </select>
+              <div class="small contextHint">Selecciona «Dentro» sólo si el manual o el fabricante confirma humedad en la sonda.</div>
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <label for="readingComparison">Lecturas frente a visitas comparables</label>
+            <select id="readingComparison" name="readingComparison" required aria-describedby="comparisonHint">
+              <option value="">Seleccionar comparación</option>
+              <option value="estable">Sin cambio llamativo observado</option>
+              <option value="cambio">Cambio llamativo: requiere revisión</option>
+              <option value="sin_referencia">No hay una referencia comparable</option>
+            </select>
+            <div id="comparisonHint" class="small contextHint">Compara la misma colmena, posición de sonda, hora y condiciones similares. Si no tienes esas lecturas, elige «No hay una referencia comparable». Esta comparación no diagnostica la salud.</div>
           </div>
           <div class="row2" style="margin-top:12px">
             <div>
@@ -399,8 +454,27 @@
               </select>
             </div>
           </div>
+          <div id="waterContextWrap" hidden style="margin-top:12px">
+            <label for="waterContext">Ubicación y efecto del agua detectada</label>
+            <select id="waterContext" name="waterContext" disabled>
+              <option value="">Seleccionar ubicación y efecto</option>
+              <option value="exterior">Sólo en el exterior de la caja</option>
+              <option value="interior">Dentro de la caja, sin daño observado</option>
+              <option value="afecta_nido">Dentro, afectando la cría o los potes / inundando el nido</option>
+              <option value="sin_confirmar">No se pudo determinar</option>
+            </select>
+          </div>
 
           <div style="margin-top:14px" class="sectionTitle">Chequeo visual rápido</div>
+          <div style="margin-bottom:12px">
+            <label for="rain">Lluvia durante la observación</label>
+            <select id="rain" name="rain" required>
+              <option value="">Seleccionar condición</option>
+              <option value="no">Sin lluvia</option>
+              <option value="si">Con lluvia</option>
+              <option value="no_obs">No observado</option>
+            </select>
+          </div>
           <div class="row2">
             <div>
               <label for="activity">Actividad en la entrada</label>
@@ -432,6 +506,16 @@
                 <input id="predatorCount" name="predatorCount" type="number" required min="0" step="1" inputmode="numeric" placeholder="Ej: 5">
               </div>
             </div>
+            <div id="predatorContextWrap" hidden style="margin-top:12px">
+              <label for="predatorContext">Ubicación y comportamiento de los predadores</label>
+              <select id="predatorContext" name="predatorContext" disabled>
+                <option value="">Seleccionar observación</option>
+                <option value="exterior">Cerca / afuera, sin ataque observado</option>
+                <option value="interior">Dentro de la caja, sin ataque observado</option>
+                <option value="ataque">Ataque o invasión que afecta al nido</option>
+                <option value="sin_confirmar">No se pudo determinar</option>
+              </select>
+            </div>
           </fieldset>
 
           <div class="row2" style="margin-top:12px">
@@ -455,6 +539,16 @@
               </div>
               <div class="groupError" id="boxStateError" aria-live="polite"></div>
             </fieldset>
+          </div>
+          <div style="margin-top:12px">
+            <label for="nestExposure">Nido expuesto por daño de la caja o de la tapa</label>
+            <select id="nestExposure" name="nestExposure" required>
+              <option value="">Seleccionar observación</option>
+              <option value="no">No se observa el nido expuesto</option>
+              <option value="si">Sí, el daño deja el nido expuesto</option>
+              <option value="no_obs">No se pudo verificar</option>
+            </select>
+            <div class="small contextHint">Observa desde afuera. Este registro no exige abrir la colmena. Una grieta superficial no equivale a un nido expuesto.</div>
           </div>
 
           <div class="row2" style="margin-top:12px">
@@ -520,13 +614,28 @@
             <textarea id="note" name="note" placeholder="Escribe tus observaciones, si las tienes."></textarea>
           </div>
           <div class="riskBox risk-pendiente" id="riskBox" role="status" aria-live="polite" aria-atomic="true">
-            <div class="sectionTitle">Semáforo de la colmena</div>
-            <div class="riskBadge risk-pendiente" id="riskTitle">⚪ Riesgo: --</div>
+            <div class="sectionTitle">Semáforo de la colmena · Prioridad de revisión</div>
+            <div class="riskBadge risk-pendiente" id="riskTitle">⚪ PENDIENTE</div>
             <div class="small riskReason" id="riskDetail">Completa las lecturas y el chequeo visual.</div>
             <div class="small riskLegend" aria-label="Significado de los colores">
               <span>🟢 NORMAL</span><span>🟡 REVISAR</span><span>🔴 ALERTA</span>
             </div>
-            <div class="small" style="margin-top:8px">El color corresponde al nivel de riesgo de esta visita.</div>
+            <div class="small" style="margin-top:8px">Criterios provisionales para esta visita. NORMAL significa «sin señales de alerta observadas»; no certifica la salud de la colonia.</div>
+            <details class="help">
+              <summary>Criterios y fuentes del semáforo</summary>
+              <p>🔴 ALERTA: ataque que afecta al nido, agua que compromete la cría o los potes / inunda el nido, o daño que lo deja expuesto. Avisar al responsable.</p>
+              <p>🟡 REVISAR: observaciones que necesitan comprobación, cambios respecto a visitas comparables o falta de referencia local. Un predador cercano o sonido alto no activa rojo por sí solo.</p>
+              <p>🟢 NORMAL: registro suficiente, sin señales de alerta observadas. ⚪ PENDIENTE: faltan datos esenciales o su origen no está confirmado.</p>
+              <p>Sólo para una sonda cerca de la cría, se usa como referencia descriptiva el intervalo observado de 21,3–34,6 °C en dos nidos de Acre. Fuera de él se solicita revisión. No es un intervalo óptimo ni un límite sanitario validado para Manacamiri. Otras posiciones se registran para comparación local.</p>
+              <p>No hay un corte automático de humedad para rojo: se ha observado actividad intensa con humedad ambiental cercana al 90 %. Abejas por minuto, hora y lluvia se interpretan en conjunto, sin un mínimo universal.</p>
+              <ul>
+                <li><a href="https://repositorio.concytec.gob.pe/handle/20.500.12390/1397" target="_blank" rel="noopener noreferrer">IIAP: manual de crianza (2019)</a></li>
+                <li><a href="https://doi.org/10.12741/ebrasilis.v10i2.705" target="_blank" rel="noopener noreferrer">Correia y colaboradores: termorregulación (2017)</a></li>
+                <li><a href="https://www.revistas.unipar.br/index.php/veterinaria/article/view/5816" target="_blank" rel="noopener noreferrer">Correia y colaboradores: actividad de vuelo (2017)</a></li>
+                <li><a href="https://doi.org/10.25100/socolen.v37i1.9055" target="_blank" rel="noopener noreferrer">Nates-Parra y Rodríguez: forrajeo (2011)</a></li>
+              </ul>
+              <p>Los colores son una propuesta de revisión basada en estas fuentes; requieren evaluación local con un especialista. La referencia térmica debe ajustarse o retirarse si esa evaluación lo determina.</p>
+            </details>
           </div>
           <div style="margin-top:12px">
             <button class="btn" id="saveBtn" type="submit">Guardar lectura</button>
@@ -576,12 +685,38 @@
   // Se conserva la clave para leer las visitas guardadas con la versión anterior.
   var STORAGE_KEY = "ab_field_entries_v2";
   var META_KEY = "ab_field_meta_v1";
+  // Método de prioridad de revisión, aún pendiente de validación en Manacamiri.
+  // Los colores son una propuesta operativa; las publicaciones no validaron este algoritmo.
+  var RISK_PROTOCOL = {
+    version:"melipona_eburnea_manacamiri_2026_10_01_v1",
+    status:"provisional_pendiente_validacion_local",
+    species:"Melipona eburnea",
+    site:"Manacamiri, Maynas, Loreto, Perú",
+    sources:[
+      "https://repositorio.concytec.gob.pe/handle/20.500.12390/1397",
+      "https://doi.org/10.12741/ebrasilis.v10i2.705",
+      "https://www.revistas.unipar.br/index.php/veterinaria/article/view/5816",
+      "https://doi.org/10.25100/socolen.v37i1.9055"
+    ]
+  };
+  // Extremos OBSERVADOS en dos nidos de Acre, con sensores cerca de la cría.
+  // Referencia descriptiva para solicitar REVISAR, NO intervalo óptimo ni límite de daño.
+  // No se aplica a una sonda bajo la tapa ni a otra posición no comparable.
+  var TEMPERATURE_REFERENCE = {min:21.3,max:34.6,position:"cerca_cria",colonies:2};
+  var INSTRUMENT = {
+    brand:"Tempo Real",model:"B0151 nc",
+    configuration:"pantalla_afuera_sonda_temperatura_dentro",
+    temperatureRange:{min:-40,max:70},humidityRange:{min:10,max:99},
+    announcedTemperatureAccuracyC:1,announcedHumidityAccuracyPctRH:5,
+    accuracyVerified:false,
+    specificationsSource:"https://www.mercadolibre.com.pe/termohigrometro-digital-estacion-meteorologica-lcd-real/up/MPEU3974383740"
+  };
   // Colores y texto accesible: el estado se entiende sin distinguir los colores.
   var TRAFFIC_LIGHTS = {
     normal:{css:"risk-normal", label:"🟢 NORMAL"},
     revisar:{css:"risk-revisar", label:"🟡 REVISAR"},
     alerta:{css:"risk-alerta", label:"🔴 ALERTA"},
-    pendiente:{css:"risk-pendiente", label:"⚪ Riesgo: --"}
+    pendiente:{css:"risk-pendiente", label:"⚪ PENDIENTE"}
   };
   var GROUPS = ["boxState", "actionTaken"];
   var EXCLUSIVE = {boxState:"ok", actionTaken:"ninguna"};
@@ -597,7 +732,12 @@
     waterStatus:"Agua / humedad líquida detectada",
     activity:"Actividad en la entrada",
     mold:"Humedad visible / moho",
-    shade:"Sombra / exposición"
+    shade:"Sombra / exposición",
+    tempProbePosition:"Ubicación de la sonda dentro de la caja",
+    humidityLocation:"Lugar donde se mide la humedad",
+    readingComparison:"Lecturas frente a visitas comparables",
+    rain:"Lluvia durante la observación",
+    nestExposure:"Nido expuesto por daño de la caja o de la tapa"
   };
   var MAPS = {
     soundLevel:{no_medido:"No medido", bajo:"Bajo", medio:"Medio", alto:"Alto"},
@@ -607,7 +747,14 @@
     mold:{seco:"Seco", humedo:"Húmedo", moho:"Moho"},
     boxState:{ok:"OK", grietas:"Grietas / huecos", techo:"Techo con filtración", inclinada:"Caja inclinada"},
     shade:{sombra:"Sombra", parcial:"Parcial", sol:"Sol directo"},
-    actionTaken:{ninguna:"Ninguna", limpieza:"Limpieza", barrera_hormigas:"Barrera anti-hormigas", reparar_techo:"Reparar techo", mover_sombra:"Mover a sombra", otro:"Otro"}
+    actionTaken:{ninguna:"Ninguna", limpieza:"Limpieza", barrera_hormigas:"Barrera anti-hormigas", reparar_techo:"Reparar techo", mover_sombra:"Mover a sombra", otro:"Otro"},
+    tempProbePosition:{cerca_cria:"Cerca de la cría",bajo_tapa:"Debajo de la tapa",otra:"Otra ubicación",sin_confirmar:"Sin confirmar"},
+    humidityLocation:{externa_pantalla:"Exterior: sensor en el aparato (confirmado)",interna_sonda:"Interior: sensor en la sonda (confirmado)",sin_confirmar:"Ubicación sin confirmar"},
+    readingComparison:{estable:"Sin cambio llamativo observado",cambio:"Cambio llamativo: requiere revisión",sin_referencia:"Sin referencia comparable"},
+    rain:{no:"Sin lluvia",si:"Con lluvia",no_obs:"No observado"},
+    predatorContext:{sin_predadores:"Sin predadores reportados",exterior:"Cerca / afuera, sin ataque observado",interior:"Dentro, sin ataque observado",ataque:"Ataque o invasión que afecta al nido",sin_confirmar:"Ubicación o comportamiento sin confirmar"},
+    waterContext:{sin_agua:"No se reportó agua",sin_determinar:"No medido",exterior:"Sólo en el exterior",interior:"Dentro, sin daño observado",afecta_nido:"Agua que afecta la cría o los potes / inunda el nido",sin_confirmar:"Ubicación y efecto sin confirmar"},
+    nestExposure:{no:"No se observa el nido expuesto",si:"El daño deja el nido expuesto",no_obs:"No se pudo verificar"}
   };
 
   function $(id){return document.getElementById(id);}
@@ -632,6 +779,9 @@
     return asArray(value).map(function(v){return labelValue(type, v);});
   }
   function labelOptions(type, value){return optionLabels(type, value).join(", ") || "--";}
+  function validSelection(type, value){
+    return !!MAPS[type] && Object.prototype.hasOwnProperty.call(MAPS[type], value);
+  }
   function airtableOptions(type, value){
     var labels = optionLabels(type, value);
     return AIRTABLE_MULTI_FIELD_TYPE === "text" ? labels.join(", ") : labels;
@@ -706,6 +856,21 @@
     $("actionOtherWrap").hidden = !actionOther;
     $("actionOther").disabled = !actionOther;
     $("actionOther").required = actionOther;
+    var probeOther = $("tempProbePosition").value === "otra";
+    $("tempProbeOtherWrap").hidden = !probeOther;
+    $("tempProbeOther").disabled = !probeOther;
+    $("tempProbeOther").required = probeOther;
+    var count = inputNumber("predatorCount");
+    var predatorDetails = validCount(count) && count > 0;
+    $("predatorContextWrap").hidden = !predatorDetails;
+    $("predatorContext").disabled = !predatorDetails;
+    $("predatorContext").required = predatorDetails;
+    if (!predatorDetails) $("predatorContext").value = "";
+    var waterDetails = $("waterStatus").value === "si";
+    $("waterContextWrap").hidden = !waterDetails;
+    $("waterContext").disabled = !waterDetails;
+    $("waterContext").required = waterDetails;
+    if (!waterDetails) $("waterContext").value = "";
   }
   function handleGroupChange(event){
     var input = event.target;
@@ -739,21 +904,30 @@
       return validationError($("school"), "Configura el colegio y la colmena antes de registrar una visita.");
     }
     if ($("temp").value === "" || !Number.isFinite(Number($("temp").value)) || !$("temp").checkValidity()){
-      return validationError($("temp"), "Completa una temperatura válida, con hasta un decimal.");
+      return validationError($("temp"), "Copia la temperatura de la sonda: entre −40 y 70 °C, con hasta un decimal. Estos son límites del instrumento, no de salud.");
     }
     if ($("hum").value === "" || !Number.isFinite(Number($("hum").value)) || !$("hum").checkValidity()){
-      return validationError($("hum"), "Completa la humedad ambiental con un entero entre 0 y 100%.");
+      return validationError($("hum"), "Copia la humedad del equipo con un entero entre 10 y 99 %, su rango anunciado.");
     }
     for (var id in SELECT_LABELS){
-      if (!$(id).value){
+      if (!validSelection(id, $(id).value)){
         return validationError($(id), "Completa el campo «"+SELECT_LABELS[id]+"».");
       }
+    }
+    if ($("tempProbePosition").value === "otra" && !$("tempProbeOther").value.trim()){
+      return validationError($("tempProbeOther"), "Describe la ubicación de la sonda dentro de la caja.");
     }
     if (!$("predatorDescription").value.trim()){
       return validationError($("predatorDescription"), "Escribe los predadores observados. Si no hay, escribe «Ninguno».");
     }
     if (!validCount(inputNumber("predatorCount")) || !$("predatorCount").checkValidity()){
       return validationError($("predatorCount"), "Completa la cantidad de predadores con un entero igual o mayor que 0.");
+    }
+    if (inputNumber("predatorCount") > 0 && !validSelection("predatorContext", $("predatorContext").value)){
+      return validationError($("predatorContext"), "Indica la ubicación y el comportamiento de los predadores. Si no lo sabes, selecciona «No se pudo determinar».");
+    }
+    if ($("waterStatus").value === "si" && !validSelection("waterContext", $("waterContext").value)){
+      return validationError($("waterContext"), "Indica dónde está el agua y su efecto sobre el nido.");
     }
     if (!validCount(inputNumber("beesPerMinute")) || !$("beesPerMinute").checkValidity()){
       return validationError($("beesPerMinute"), "Completa el número de abejas ingresando por minuto con un entero igual o mayor que 0.");
@@ -770,6 +944,9 @@
       if (values.length > 1 && values.indexOf(EXCLUSIVE[group]) !== -1){
         return validationError($(group).querySelector("input"), "La opción «"+labelValue(group, EXCLUSIVE[group])+"» debe marcarse sola.");
       }
+    }
+    if ($("nestExposure").value === "si" && selected("boxState").indexOf("ok") !== -1){
+      return validationError($("boxState").querySelector("input"), "Si el daño deja el nido expuesto, marca el problema de caja observado en lugar de «OK».");
     }
     if (selected("actionTaken").indexOf("otro") !== -1 && !$("actionOther").value.trim()){
       return validationError($("actionOther"), "Especifica la otra acción realizada.");
@@ -797,6 +974,18 @@
       predatorDescription:$("predatorDescription").value.trim(),
       predatorCount:inputNumber("predatorCount"),
       beesPerMinute:inputNumber("beesPerMinute"),
+      temperatureSource:"interior_sonda",
+      tempProbePosition:$("tempProbePosition").value,
+      tempProbeOther:$("tempProbePosition").value === "otra" ? $("tempProbeOther").value.trim() : "",
+      humidityLocation:$("humidityLocation").value,
+      readingComparison:$("readingComparison").value,
+      rain:$("rain").value,
+      predatorContext:validCount(inputNumber("predatorCount")) && inputNumber("predatorCount") === 0
+        ? "sin_predadores" : $("predatorContext").value,
+      waterContext:$("waterStatus").value === "no" ? "sin_agua"
+        : $("waterStatus").value === "no_medido" ? "sin_determinar" : $("waterContext").value,
+      nestExposure:$("nestExposure").value,
+      instrument:JSON.parse(JSON.stringify(INSTRUMENT)),
       mold:$("mold").value,
       boxState:selected("boxState"),
       shade:$("shade").value,
@@ -808,41 +997,87 @@
   }
 
   function assessRisk(data){
-    var reasons = [];
     var hum = data.hum === "" || data.hum === null || data.hum === undefined ? NaN : Number(data.hum);
     var temp = data.temp === "" || data.temp === null || data.temp === undefined ? NaN : Number(data.temp);
-    if (Number.isFinite(hum) && hum >= 90) reasons.push("humedad ambiental muy alta");
-    if (Number.isFinite(temp) && temp >= 36) reasons.push("temperatura alta");
-    if (data.soundLevel === "alto") reasons.push("sonido alto");
-    if (data.waterStatus === "si") reasons.push("agua o humedad líquida");
-    if (validCount(data.predatorCount) && Number(data.predatorCount) > 0){
-      reasons.push("predadores observados: "+(data.predatorDescription || "sin descripción")+
-        " (cantidad: "+data.predatorCount+")");
-    } else if (!hasNumber(data.predatorCount)){
-      var pests = asArray(data.pests).filter(function(v){return v !== "ninguna";});
-      if (pests.length) reasons.push("predadores observados: "+predatorsOf(data).description);
+    var hasPredators = validCount(data.predatorCount) && Number(data.predatorCount) > 0;
+    var boxes = asArray(data.boxState);
+    function result(level, detail){
+      return {
+        level:level,title:"Prioridad: "+level.toUpperCase(),detail:detail,
+        version:RISK_PROTOCOL.version,status:RISK_PROTOCOL.status,
+        temperatureReferenceApplied:data.tempProbePosition === TEMPERATURE_REFERENCE.position && Number.isFinite(temp),
+        humidityNumericThresholdApplied:false
+      };
     }
-    if (data.mold === "moho") reasons.push("moho visible");
-    var boxes = asArray(data.boxState).filter(function(v){return v !== "ok";});
-    if (boxes.length) reasons.push("problema en caja: "+labelOptions("boxState", boxes));
+    // Una amenaza observada tiene prioridad incluso si faltan otras lecturas.
+    var reasons = [];
+    if (hasPredators && data.predatorContext === "ataque") reasons.push("ataque o invasión que afecta al nido");
+    if (data.waterStatus === "si" && data.waterContext === "afecta_nido") reasons.push("agua que compromete la cría o los potes / inunda el nido");
+    if (data.nestExposure === "si") reasons.push("daño de caja o tapa que deja el nido expuesto");
     if (reasons.length){
-      return {level:"alerta", title:"Riesgo: ALERTA", detail:"Revisar colmena: "+reasons.join(", ")+"."};
+      return result("alerta", "Avisar al responsable para evaluación pronta: "+reasons.join("; ")+". Completa las demás observaciones sin demorar el aviso.");
     }
+    var validTemp = Number.isFinite(temp) && temp >= INSTRUMENT.temperatureRange.min && temp <= INSTRUMENT.temperatureRange.max &&
+      Math.abs(temp * 10 - Math.round(temp * 10)) < 0.000001;
+    var validHum = Number.isFinite(hum) && Number.isInteger(hum) && hum >= INSTRUMENT.humidityRange.min && hum <= INSTRUMENT.humidityRange.max;
+    var complete = validTemp && validHum && validCount(data.predatorCount) && validCount(data.beesPerMinute) &&
+      typeof data.predatorDescription === "string" && !!data.predatorDescription.trim() &&
+      Object.keys(SELECT_LABELS).every(function(id){return validSelection(id, data[id]);}) &&
+      boxes.length && boxes.every(function(v){return validSelection("boxState", v);}) &&
+      !(boxes.length > 1 && boxes.indexOf("ok") !== -1) &&
+      (data.tempProbePosition !== "otra" || typeof data.tempProbeOther === "string" && !!data.tempProbeOther.trim()) &&
+      (!hasPredators || validSelection("predatorContext", data.predatorContext)) &&
+      (data.waterStatus !== "si" || validSelection("waterContext", data.waterContext));
+    if (!complete){
+      return result("pendiente", "Completa las lecturas, su ubicación y el chequeo visual para establecer la prioridad de revisión.");
+    }
+    var unknown = [];
+    if (data.tempProbePosition === "sin_confirmar") unknown.push("posición de la sonda de temperatura");
+    if (data.humidityLocation === "sin_confirmar") unknown.push("lugar donde se mide la humedad");
+    if (data.soundLevel === "no_medido") unknown.push("observación de sonido");
+    if (data.waterStatus === "no_medido") unknown.push("presencia de agua");
+    if (data.activity === "no_obs") unknown.push("actividad en la entrada");
+    if (data.rain === "no_obs") unknown.push("lluvia durante el conteo");
+    if (data.nestExposure === "no_obs") unknown.push("protección del nido");
     var checks = [];
-    if (Number.isFinite(hum) && hum >= 80) checks.push("humedad elevada");
-    if (data.activity === "baja" || data.activity === "no_obs") checks.push("actividad baja o no observada");
-    if (data.mold === "humedo") checks.push("caja húmeda");
+    if (data.tempProbePosition === TEMPERATURE_REFERENCE.position &&
+      (temp < TEMPERATURE_REFERENCE.min || temp > TEMPERATURE_REFERENCE.max)){
+      checks.push("temperatura cerca de la cría fuera de la referencia descriptiva de Acre (21,3–34,6 °C); repetir la lectura y consultar al responsable. Esa referencia no es un límite de salud validado en Manacamiri");
+    }
+    if (temp === INSTRUMENT.temperatureRange.min || temp === INSTRUMENT.temperatureRange.max ||
+      hum === INSTRUMENT.humidityRange.min || hum === INSTRUMENT.humidityRange.max){
+      checks.push("lectura en un extremo del rango anunciado del instrumento; corroborarla");
+    }
+    if (data.readingComparison === "cambio") checks.push("cambio llamativo respecto a visitas comparables; repetir las lecturas");
+    if (data.readingComparison === "sin_referencia") checks.push("aún no hay una referencia comparable de temperatura y humedad; continuar el registro y consultar al responsable");
+    if (hasPredators) checks.push("predadores observados ("+Number(data.predatorCount)+"): "+labelValue("predatorContext", data.predatorContext)+"; verificar su efecto sobre el nido");
+    if (data.waterStatus === "si") checks.push("agua detectada: "+labelValue("waterContext", data.waterContext)+"; verificar la protección de la caja");
+    if (Number(data.beesPerMinute) === 0 && data.activity !== "no_obs"){
+      checks.push("sin ingresos durante el minuto de conteo; repetir en una hora y condiciones comparables. No demuestra por sí solo una colonia enferma");
+    } else if (data.activity === "baja"){
+      checks.push(data.rain === "si" ? "actividad baja durante lluvia; repetir en condiciones comparables" : "actividad baja; repetir el conteo en condiciones comparables");
+    }
+    if (data.soundLevel === "alto") checks.push("sonido alto; comprobar su origen y repetir la observación");
+    if (data.mold === "humedo") checks.push("humedad visible en la caja");
+    if (data.mold === "moho") checks.push("moho visible; consultar para determinar ubicación, alcance y efecto");
+    var defects = boxes.filter(function(v){return v !== "ok";});
+    if (defects.length) checks.push("problema de caja: "+labelOptions("boxState", defects));
     if (data.shade === "sol") checks.push("sol directo");
     if (checks.length){
-      return {level:"revisar", title:"Riesgo: REVISAR", detail:"Observar en la siguiente visita: "+checks.join(", ")+"."};
+      return result("revisar", "Revisar con el responsable: "+checks.join("; ")+"."+
+        (unknown.length ? " Además, falta confirmar: "+unknown.join(", ")+"." : ""));
     }
-    var complete = Number.isFinite(temp) && Number.isFinite(hum) && data.soundLevel && data.waterStatus &&
-      data.activity && data.mold && data.shade && asArray(data.boxState).length &&
-      ((validCount(data.predatorCount) && data.predatorDescription && validCount(data.beesPerMinute)) || asArray(data.pests).length);
-    if (!complete){
-      return {level:"pendiente", title:"Riesgo: --", detail:"Completa las lecturas y el chequeo visual para calcular una alerta simple."};
+    if (unknown.length){
+      return result("pendiente", "No se puede completar la evaluación: falta confirmar "+unknown.join(", ")+". El registro se puede guardar indicando esta incertidumbre.");
     }
-    return {level:"normal", title:"Riesgo: NORMAL", detail:"No se registran señales fuertes de riesgo."};
+    return result("normal", "Sin señales de alerta observadas en esta visita. Temperatura: sonda interna; humedad: "+
+      labelValue("humidityLocation", data.humidityLocation)+". El semáforo es provisional y no certifica la salud de la colonia.");
+  }
+  function riskForRecord(row){
+    // Mantener el color y el motivo con que se guardó cada visita; no reinterpretar históricos.
+    if (row.risk && typeof row.risk === "object" && row.risk.level) return row.risk;
+    if (row.riskVersion === RISK_PROTOCOL.version) return assessRisk(row);
+    return {level:"pendiente",title:"Prioridad: PENDIENTE",detail:"Registro anterior sin evaluación almacenada. No se ha recalculado con las reglas nuevas.",version:"sin_evaluacion_anterior"};
   }
   function trafficLight(risk){
     var level = String(risk && risk.level || "").toLowerCase();
@@ -850,6 +1085,7 @@
       ? TRAFFIC_LIGHTS[level] : TRAFFIC_LIGHTS.pendiente;
   }
   function updateRiskPreview(){
+    updateOtherFields();
     var risk = assessRisk(currentData());
     var light = trafficLight(risk);
     $("riskBox").className = "riskBox "+light.css;
@@ -869,7 +1105,7 @@
     rows.sort(function(a,b){return b.ts - a.ts;});
     $("list").textContent = "";
     rows.slice(0,8).forEach(function(row){
-      var risk = row.risk || assessRisk(row);
+      var risk = riskForRecord(row);
       var light = trafficLight(risk);
       var div = document.createElement("div");
       div.className = "item "+light.css;
@@ -881,14 +1117,26 @@
       title.textContent = observerOf(row)+" · "+(row.hive || HIVE_CODE)+
         " · "+fmtNum(row.temp,1)+"°C · "+fmtNum(row.hum,0)+"% · Sonido: "+labelValue("soundLevel", row.soundLevel);
       var extra = [];
+      if (row.temperatureSource === "interior_sonda"){
+        extra.push("Temperatura: sonda interna · "+labelValue("tempProbePosition", row.tempProbePosition)+
+          (row.tempProbeOther ? " ("+row.tempProbeOther+")" : ""));
+      } else {
+        extra.push("Ubicación de temperatura: no registrada en esta visita anterior");
+      }
+      extra.push("Lugar de humedad: "+(row.humidityLocation ? labelValue("humidityLocation", row.humidityLocation) : "no registrado"));
+      if (row.readingComparison) extra.push("Comparación de lecturas: "+labelValue("readingComparison", row.readingComparison));
+      if (row.rain) extra.push("Lluvia: "+labelValue("rain", row.rain));
       if (row.waterStatus && row.waterStatus !== "no") extra.push("Agua: "+labelValue("waterStatus", row.waterStatus));
+      if (row.waterContext && row.waterStatus === "si") extra.push("Efecto del agua: "+labelValue("waterContext", row.waterContext));
       if (row.activity) extra.push("Actividad: "+labelValue("activity", row.activity));
       var predators = predatorsOf(row);
       extra.push("Predadores: "+predators.description);
       extra.push("Cantidad de predadores: "+(predators.count === null ? "no registrada" : predators.count));
+      if (row.predatorContext && predators.count > 0) extra.push("Predadores: "+labelValue("predatorContext", row.predatorContext));
       extra.push("Abejas ingresando/min: "+(validCount(row.beesPerMinute) ? Number(row.beesPerMinute) : "no registrado"));
       if (row.mold) extra.push("Humedad: "+labelValue("mold", row.mold));
       extra.push("Caja: "+labelOptions("boxState", row.boxState));
+      if (row.nestExposure) extra.push("Protección del nido: "+labelValue("nestExposure", row.nestExposure));
       if (row.shade) extra.push("Exposición: "+labelValue("shade", row.shade));
       extra.push("Acciones: "+labelOptions("actionTaken", row.actionTaken));
       if (row.actionOther && asArray(row.actionTaken).indexOf("otro") !== -1) extra.push("Otra acción: "+row.actionOther);
@@ -905,6 +1153,12 @@
       reason.className = "small riskReason";
       reason.textContent = risk.detail || "No hay un detalle de riesgo registrado en esta visita.";
       left.appendChild(reason);
+      if (risk.version !== RISK_PROTOCOL.version){
+        var oldMethod = document.createElement("div");
+        oldMethod.className = "small contextHint";
+        oldMethod.textContent = "Semáforo histórico: corresponde a reglas anteriores, no a esta evaluación provisional.";
+        left.appendChild(oldMethod);
+      }
       if (row.synced && typeof row.id === "string" && row.id){
         var removeButton = document.createElement("button");
         removeButton.type = "button";
@@ -953,7 +1207,8 @@
   }
   function resetReadings(){
     ["temp", "hum", "soundLevel", "waterStatus", "activity", "mold", "shade", "note", "actionOther",
-      "predatorDescription", "predatorCount", "beesPerMinute"].concat(Object.keys(OPTIONAL_NUMBERS))
+      "predatorDescription", "predatorCount", "beesPerMinute", "readingComparison", "rain", "nestExposure",
+      "predatorContext", "waterContext"].concat(Object.keys(OPTIONAL_NUMBERS))
       .forEach(function(id){$(id).value = "";});
     GROUPS.forEach(function(group){
       document.querySelectorAll('input[name="'+group+'"]')
@@ -985,6 +1240,8 @@
       ts:now.getTime(),
       note:$("note").value.trim(),
       risk:assessRisk(data),
+      riskVersion:RISK_PROTOCOL.version,
+      riskMethod:{version:RISK_PROTOCOL.version,status:RISK_PROTOCOL.status,species:RISK_PROTOCOL.species,site:RISK_PROTOCOL.site,sources:RISK_PROTOCOL.sources.slice()},
       synced:false,
       syncedAt:null,
       attempts:0,
@@ -1000,6 +1257,11 @@
     }
     var meta = loadMeta();
     meta.lastObserverName = observer;
+    meta.lastProbePosition = data.tempProbePosition;
+    meta.lastProbeOther = data.tempProbeOther;
+    meta.lastHumidityLocation = data.humidityLocation;
+    meta.measurementProfileHive = HIVE_CODE;
+    meta.measurementProfileInstrument = INSTRUMENT.model;
     saveMeta(meta);
     resetReadings();
     showMsg("Registro de "+observer+" guardado. Se sincronizará cuando haya internet.", true);
@@ -1008,7 +1270,7 @@
   }
 
   function buildAirtableRecord(row){
-    var risk = row.risk || assessRisk(row);
+    var risk = riskForRecord(row);
     var observer = observerOf(row);
     var predators = predatorsOf(row);
     var boxes = asArray(row.boxState);
@@ -1025,6 +1287,20 @@
       when_local:row.whenLocal,
       temperatura_c:row.temp,
       humedad_ambiental_pct:row.hum,
+      instrumento:row.instrument || null,
+      origen_temperatura:row.temperatureSource || null,
+      posicion_sonda:row.tempProbePosition || null,
+      otra_posicion_sonda:row.tempProbeOther || null,
+      origen_humedad:row.humidityLocation || null,
+      comparacion_lecturas:row.readingComparison || null,
+      lluvia_durante_observacion:row.rain || null,
+      predadores_contexto:row.predatorContext || null,
+      agua_contexto:row.waterContext || null,
+      nido_expuesto:row.nestExposure || null,
+      version_semaforo:row.riskVersion || risk.version || "anterior_sin_version",
+      metodo_semaforo:row.riskMethod || null,
+      referencia_temperatura_aplicada:risk.temperatureReferenceApplied === undefined ? null : risk.temperatureReferenceApplied,
+      umbral_numerico_humedad_aplicado:risk.humidityNumericThresholdApplied === undefined ? null : risk.humidityNumericThresholdApplied,
       sonido_nivel:row.soundLevel || "no_medido",
       agua_humedad_liquida:row.waterStatus || "no_medido",
       actividad_entrada:row.activity,
@@ -1163,6 +1439,11 @@
     $("hive").value = HIVE_CODE;
     $("when").value = toDatetimeLocalValue(new Date());
     $("observerName").value = meta.lastObserverName || meta.lastVolunteer || "";
+    if (meta.measurementProfileHive === HIVE_CODE && meta.measurementProfileInstrument === INSTRUMENT.model){
+      if (validSelection("tempProbePosition", meta.lastProbePosition)) $("tempProbePosition").value = meta.lastProbePosition;
+      $("tempProbeOther").value = meta.lastProbeOther || "";
+      if (validSelection("humidityLocation", meta.lastHumidityLocation)) $("humidityLocation").value = meta.lastHumidityLocation;
+    }
     setNetUI();
     window.addEventListener("online", function(){setNetUI();scheduleSyncSoon();});
     window.addEventListener("offline", function(){setNetUI();setSyncTag("SYNC: OFFLINE");});
