@@ -296,7 +296,7 @@
       <div class="card">
         <form id="visitForm" novalidate>
           <div class="sectionTitle">Datos de la visita</div>
-          <p class="small requiredNote">Todos los campos son obligatorios, excepto las medidas de batumen y piquera indicadas como opcionales. En los grupos de casillas, marca al menos una opción. Si no hay novedades, escribe «Sin observaciones» en Notas.</p>
+          <p class="small requiredNote">Todos los campos son obligatorios, excepto Observaciones y las medidas de batumen y piquera indicadas como opcionales. En los grupos de casillas, marca al menos una opción.</p>
 
           <div>
             <label for="observerName">Nombre y apellido del observador</label>
@@ -472,8 +472,8 @@
           </fieldset>
 
           <div style="margin-top:12px">
-            <label for="note">Notas</label>
-            <textarea id="note" name="note" required placeholder="Describe lo observado o escribe «Sin observaciones»."></textarea>
+            <label for="note">Observaciones (opcional)</label>
+            <textarea id="note" name="note" placeholder="Escribe tus observaciones, si las tienes."></textarea>
           </div>
           <div style="margin-top:12px">
             <button class="btn" id="saveBtn" type="submit">Guardar lectura</button>
@@ -712,9 +712,6 @@
     }
     if (selected("actionTaken").indexOf("otro") !== -1 && !$("actionOther").value.trim()){
       return validationError($("actionOther"), "Especifica la otra acción realizada.");
-    }
-    if (!$("note").value.trim()){
-      return validationError($("note"), "Completa Notas. Si no hay novedades, escribe «Sin observaciones».");
     }
     // Los campos opcionales pueden estar vacíos. Si se usan, deben ser números válidos.
     for (var optionalId in OPTIONAL_NUMBERS){
