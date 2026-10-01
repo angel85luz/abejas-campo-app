@@ -510,9 +510,9 @@
 
   // El token de Airtable sigue en el servidor /api/sync, nunca en este archivo.
   var AIRTABLE_STATUS_VALUE = "OK";
-  // Conserva el nombre actual de la columna para no romper la base existente.
-  // Si la renombras en Airtable a Observador, cambia este valor a "Observador".
-  var AIRTABLE_OBSERVER_FIELD = "Voluntario";
+  // Los nombres de Airtable coinciden exactamente con las etiquetas del formulario.
+  // Aplica las mismas denominaciones en la tabla antes de sincronizar esta versión.
+  var AIRTABLE_OBSERVER_FIELD = "Nombre y apellido del observador";
   // "multipleSelects": Estado de la caja y Acción realizada son Selección múltiple.
   // Usa "text" si esas dos columnas son Texto de una línea o Texto largo.
   var AIRTABLE_MULTI_FIELD_TYPE = "multipleSelects";
@@ -525,11 +525,11 @@
   var GROUPS = ["boxState", "actionTaken"];
   var EXCLUSIVE = {boxState:"ok", actionTaken:"ninguna"};
   var OPTIONAL_NUMBERS = {
-    batumenPct:"Batumen en tapa %",
-    entranceLi:"Li piquera",
-    entranceLs:"Ls piquera",
-    entranceLd:"Ld piquera",
-    entranceLizq:"Lizq piquera"
+    batumenPct:"% de batumen en tapa (opcional)",
+    entranceLi:"Li piquera (opcional)",
+    entranceLs:"Ls piquera (opcional)",
+    entranceLd:"Ld piquera (opcional)",
+    entranceLizq:"Lizq piquera (opcional)"
   };
   var SELECT_LABELS = {
     soundLevel:"Sonido dentro/cerca de la colmena",
@@ -942,26 +942,26 @@
       "Status":AIRTABLE_STATUS_VALUE,
       "ID de registro":row.id,
       "Colegio":row.school || SCHOOL_NAME,
-      "Colmena":row.hive || HIVE_CODE,
-      "Fecha y hora":row.whenISO,
-      "Temperatura °C":row.temp,
-      "Humedad ambiental %":row.hum,
-      "Nivel de sonido":labelValue("soundLevel", row.soundLevel || "no_medido"),
-      "Agua detectada":labelValue("waterStatus", row.waterStatus || "no_medido"),
+      "Colmena / Caja":row.hive || HIVE_CODE,
+      "Fecha y hora automática":row.whenISO,
+      "Temperatura (°C)":row.temp,
+      "Humedad ambiental (%)":row.hum,
+      "Sonido dentro/cerca de la colmena":labelValue("soundLevel", row.soundLevel || "no_medido"),
+      "Agua / humedad líquida detectada":labelValue("waterStatus", row.waterStatus || "no_medido"),
       "Nivel de riesgo":String(risk.level || "").toUpperCase(),
       "Detalle del riesgo":risk.detail,
-      "Actividad de entrada":labelValue("activity", row.activity),
-      "Predadores observados":predators.description,
+      "Actividad en la entrada":labelValue("activity", row.activity),
+      "Predadores observados (texto libre)":predators.description,
       "Humedad visible / moho":labelValue("mold", row.mold),
       "Estado de la caja":airtableOptions("boxState", boxes),
       "Sombra / exposición":labelValue("shade", row.shade),
       "Acción realizada":airtableOptions("actionTaken", actions),
-      "Notas de campo":fieldNotes.filter(Boolean).join("\n"),
+      "Observaciones (opcional)":fieldNotes.filter(Boolean).join("\n"),
       "ID del dispositivo":row.deviceId,
       "Fecha de sincronización":new Date().toISOString()
     };
     // No inventar cantidades en visitas antiguas ni enviar campos opcionales vacíos.
-    if (predators.count !== null) fields["Número de predadores"] = predators.count;
+    if (predators.count !== null) fields["Cantidad total de predadores"] = predators.count;
     if (validCount(row.beesPerMinute)) fields["Número de abejas ingresando por minuto"] = Number(row.beesPerMinute);
     Object.keys(OPTIONAL_NUMBERS).forEach(function(id){
       if (hasNumber(row[id])) fields[OPTIONAL_NUMBERS[id]] = Number(row[id]);
