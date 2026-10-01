@@ -285,6 +285,21 @@
     .item .riskBadge{display:block;width:fit-content;margin-bottom:8px}
     .riskReason{margin-top:8px;line-height:1.5}
     .riskLegend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px}
+    .deleteReading{
+      display:block;
+      margin-top:12px;
+      min-height:44px;
+      padding:8px 12px;
+      border:1px solid rgba(248,113,113,.45);
+      border-radius:9px;
+      background:transparent;
+      color:#ffd0d0;
+      font:inherit;
+      font-size:12px;
+      cursor:pointer;
+    }
+    .deleteReading:hover{background:rgba(248,113,113,.12)}
+    .deleteReading:focus-visible{outline:2px solid #f87171;outline-offset:3px}
 
     .warn{
       color:#fff1c2;
@@ -890,6 +905,17 @@
       reason.className = "small riskReason";
       reason.textContent = risk.detail || "No hay un detalle de riesgo registrado en esta visita.";
       left.appendChild(reason);
+      if (row.synced && typeof row.id === "string" && row.id){
+        var removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "deleteReading";
+        removeButton.textContent = "Eliminar del historial";
+        removeButton.title = "Elimina esta lectura del historial de este dispositivo.";
+        removeButton.setAttribute("aria-label", "Eliminar del historial la lectura de "+observerOf(row)+
+          " del "+(row.whenLocal || row.whenISO || "fecha no registrada"));
+        removeButton.addEventListener("click", function(){deleteLocalReading(row.id);});
+        left.appendChild(removeButton);
+      }
       var tag = document.createElement("div");
       tag.className = "tag "+(row.synced ? "synced" : "pending");
       tag.textContent = row.synced ? "SYNC" : "PEND";
@@ -897,6 +923,33 @@
       div.appendChild(tag);
       $("list").appendChild(div);
     });
+  }
+  function deleteLocalReading(id){
+    if (typeof id !== "string" || !id) return;
+    var rows;
+    try{rows = loadAll();}
+    catch(e){showMsg("No se pudo leer el historial. Inténtalo de nuevo.", false);return;}
+    var row = rows.find(function(entry){return entry.id === id;});
+    // Conservar las lecturas que todavía están pendientes de sincronización.
+    if (!row || !row.synced){
+      showMsg("Solo se pueden eliminar del historial las lecturas ya sincronizadas.", false);
+      return;
+    }
+    var date = row.whenLocal || row.whenISO || "fecha no registrada";
+    if (!window.confirm("¿Eliminar del historial de este dispositivo la lectura de "+
+      observerOf(row)+" del "+date+"?")) return;
+    try{
+      // Leer otra vez para conservar los cambios hechos mientras se confirmaba.
+      rows = loadAll();
+      var current = rows.find(function(entry){return entry.id === id;});
+      if (!current || !current.synced) return;
+      saveAll(rows.filter(function(entry){return entry.id !== id;}));
+    }catch(e){
+      showMsg("No se pudo eliminar la lectura. El historial se conserva.", false);
+      return;
+    }
+    render();
+    showMsg("Lectura del "+date+" eliminada del historial de este dispositivo.", true);
   }
   function resetReadings(){
     ["temp", "hum", "soundLevel", "waterStatus", "activity", "mold", "shade", "note", "actionOther",
