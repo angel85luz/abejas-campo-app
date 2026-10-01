@@ -298,30 +298,9 @@
           <div class="sectionTitle">Datos de la visita</div>
           <p class="small requiredNote">Todos los campos son obligatorios, excepto las medidas de batumen y piquera indicadas como opcionales. En los grupos de casillas, marca al menos una opción. Si no hay novedades, escribe «Sin observaciones» en Notas.</p>
 
-          <div class="row2">
-            <div>
-              <label for="observerName">Nombre y apellido del observador</label>
-              <input id="observerName" name="observerName" required placeholder="Ej: María López" autocomplete="name">
-            </div>
-            <div>
-              <label for="week">Semana de seguimiento</label>
-              <select id="week" name="week" required>
-                <option value="">Seleccionar semana</option>
-                <option value="1">Semana 1</option>
-                <option value="2">Semana 2</option>
-                <option value="3">Semana 3</option>
-                <option value="4">Semana 4</option>
-                <option value="5">Semana 5</option>
-                <option value="6">Semana 6</option>
-                <option value="7">Semana 7</option>
-                <option value="8">Semana 8</option>
-                <option value="9">Semana 9</option>
-                <option value="10">Semana 10</option>
-                <option value="11">Semana 11</option>
-                <option value="12">Semana 12</option>
-                <option value="13">Semana 13</option>
-              </select>
-            </div>
+          <div>
+            <label for="observerName">Nombre y apellido del observador</label>
+            <input id="observerName" name="observerName" required placeholder="Ej: María López" autocomplete="name">
           </div>
 
           <div class="row2" style="margin-top:12px">
@@ -553,7 +532,6 @@
     entranceLizq:"Lizq piquera"
   };
   var SELECT_LABELS = {
-    week:"Semana de seguimiento",
     soundLevel:"Sonido dentro/cerca de la colmena",
     waterStatus:"Agua / humedad líquida detectada",
     activity:"Actividad en la entrada",
@@ -696,10 +674,6 @@
     if (!observer || observer.split(/\s+/).length < 2){
       return validationError($("observerName"), "Escribe el nombre y apellido del observador.");
     }
-    var week = Number($("week").value);
-    if (!Number.isInteger(week) || week < 1 || week > 13){
-      return validationError($("week"), "Selecciona una semana entre 1 y 13.");
-    }
     if (!SCHOOL_NAME.trim() || !HIVE_CODE.trim()){
       return validationError($("school"), "Configura el colegio y la colmena antes de registrar una visita.");
     }
@@ -835,7 +809,7 @@
       div.className = "item";
       var left = document.createElement("div");
       var title = document.createElement("b");
-      title.textContent = "Semana "+(row.week || "--")+" · "+observerOf(row)+" · "+(row.hive || HIVE_CODE)+
+      title.textContent = observerOf(row)+" · "+(row.hive || HIVE_CODE)+
         " · "+fmtNum(row.temp,1)+"°C · "+fmtNum(row.hum,0)+"% · Sonido: "+labelValue("soundLevel", row.soundLevel);
       var extra = [];
       if (row.waterStatus && row.waterStatus !== "no") extra.push("Agua: "+labelValue("waterStatus", row.waterStatus));
@@ -888,13 +862,11 @@
     data.temp = Number(data.temp);
     data.hum = Number(data.hum);
     var observer = $("observerName").value.trim().replace(/\s+/g, " ");
-    var week = Number($("week").value);
     var deviceId = getDeviceId();
     var row = Object.assign({}, data, {
       id:deviceId+"_"+now.getTime()+"_"+Math.random().toString(16).slice(2,8),
       deviceId:deviceId,
       observerName:observer,
-      week:week,
       school:SCHOOL_NAME,
       hive:HIVE_CODE,
       whenISO:now.toISOString(),
@@ -917,10 +889,9 @@
     }
     var meta = loadMeta();
     meta.lastObserverName = observer;
-    meta.lastWeek = week;
     saveMeta(meta);
     resetReadings();
-    showMsg("Registro de "+observer+" · Semana "+week+" guardado. Se sincronizará cuando haya internet.", true);
+    showMsg("Registro de "+observer+" guardado. Se sincronizará cuando haya internet.", true);
     render();
     scheduleSyncSoon();
   }
@@ -937,7 +908,6 @@
       client_id:row.id,
       device_id:row.deviceId,
       observador:observer,
-      semana:row.week,
       colegio:row.school,
       colmena:row.hive,
       when_iso:row.whenISO,
@@ -970,11 +940,10 @@
     var fieldNotes = [row.note || ""];
     if (actionOther) fieldNotes.push("Otra acción realizada: "+actionOther);
     var fields = {
-      "Name":"Semana "+row.week+" - "+observer,
+      "Name":"Visita - "+observer+" - "+(row.whenLocal || row.whenISO || row.id),
       "Notes":JSON.stringify(notesObj),
       "Status":AIRTABLE_STATUS_VALUE,
       "ID de registro":row.id,
-      "Semana":row.week,
       "Colegio":row.school || SCHOOL_NAME,
       "Colmena":row.hive || HIVE_CODE,
       "Fecha y hora":row.whenISO,
@@ -1083,7 +1052,6 @@
     $("hive").value = HIVE_CODE;
     $("when").value = toDatetimeLocalValue(new Date());
     $("observerName").value = meta.lastObserverName || meta.lastVolunteer || "";
-    $("week").value = meta.lastWeek ? String(meta.lastWeek) : "";
     setNetUI();
     window.addEventListener("online", function(){setNetUI();scheduleSyncSoon();});
     window.addEventListener("offline", function(){setNetUI();setSyncTag("SYNC: OFFLINE");});
