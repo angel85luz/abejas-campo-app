@@ -260,7 +260,19 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
-    .hide{display:none}
+    .hide, [hidden]{display:none !important}
+    fieldset{margin:0;padding:0;border:0;min-width:0}
+    legend{font-size:12px;color:var(--muted);padding:0;margin-bottom:6px}
+    .choices{display:grid;gap:7px;margin-top:6px}
+    .choice{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:10px;padding:9px 10px;color:var(--text);cursor:pointer;font-size:13px}
+    .choice input{width:18px;height:18px;flex:0 0 18px;margin:0;padding:0;accent-color:var(--primary)}
+    .choice:has(input:checked){border-color:var(--primary);background:rgba(var(--primaryRgb),.12)}
+    .choice:focus-within{outline:2px solid var(--primary);outline-offset:2px}
+    .groupError{color:#ffb3b3;font-size:12px;margin:6px 0 0;min-height:16px}
+    .requiredNote{margin:0 0 14px}
+    .item>div:first-child{min-width:0;overflow-wrap:anywhere}
+    @media (max-width:380px){header{flex-wrap:wrap}.kpi{gap:6px}}
+
   </style>
 </head>
 
@@ -274,207 +286,227 @@
           <br>La app funciona offline y sincroniza cuando vuelve internet.
         </div>
       </div>
-
-      <div class="pill" id="netPill">
+      <div class="pill" id="netPill" aria-live="polite">
         <span class="dot off" id="netDot"></span>
         <span id="netText">Offline</span>
       </div>
     </header>
 
     <div class="grid">
-
       <div class="card">
-        <div class="sectionTitle">Datos de la visita</div>
+        <form id="visitForm" novalidate>
+          <div class="sectionTitle">Datos de la visita</div>
+          <p class="small requiredNote">Todos los campos son obligatorios, excepto las medidas de batumen y piquera indicadas como opcionales. En los grupos de casillas, marca al menos una opción. Si no hay novedades, escribe «Sin observaciones» en Notas.</p>
 
-        <div class="row2">
-          <div>
-            <label>Nombre del voluntario</label>
-            <input id="volunteer" placeholder="Ej: María López" inputmode="text" autocomplete="name">
+          <div class="row2">
+            <div>
+              <label for="observerName">Nombre y apellido del observador</label>
+              <input id="observerName" name="observerName" required placeholder="Ej: María López" autocomplete="name">
+            </div>
+            <div>
+              <label for="week">Semana de seguimiento</label>
+              <select id="week" name="week" required>
+                <option value="">Seleccionar semana</option>
+                <option value="1">Semana 1</option>
+                <option value="2">Semana 2</option>
+                <option value="3">Semana 3</option>
+                <option value="4">Semana 4</option>
+                <option value="5">Semana 5</option>
+                <option value="6">Semana 6</option>
+                <option value="7">Semana 7</option>
+                <option value="8">Semana 8</option>
+                <option value="9">Semana 9</option>
+                <option value="10">Semana 10</option>
+                <option value="11">Semana 11</option>
+                <option value="12">Semana 12</option>
+                <option value="13">Semana 13</option>
+              </select>
+            </div>
           </div>
 
-          <div>
-            <label>Semana de seguimiento</label>
-            <select id="week">
-              <option value="">Seleccionar semana</option>
-              <option value="1">Semana 1</option>
-              <option value="2">Semana 2</option>
-              <option value="3">Semana 3</option>
-              <option value="4">Semana 4</option>
-              <option value="5">Semana 5</option>
-              <option value="6">Semana 6</option>
-              <option value="7">Semana 7</option>
-              <option value="8">Semana 8</option>
-              <option value="9">Semana 9</option>
-              <option value="10">Semana 10</option>
-              <option value="11">Semana 11</option>
-              <option value="12">Semana 12</option>
-              <option value="13">Semana 13</option>
-            </select>
+          <div class="row2" style="margin-top:12px">
+            <div>
+              <label for="school">Colegio</label>
+              <input id="school" name="school" type="text" readonly aria-readonly="true">
+            </div>
+            <div>
+              <label for="hive">Colmena / Caja</label>
+              <input id="hive" name="hive" type="text" readonly aria-readonly="true">
+            </div>
           </div>
-        </div>
-
-        <div class="row2" style="margin-top:12px">
-          <div>
-            <label>Colegio</label>
-            <input id="school" type="text" readonly aria-readonly="true">
+          <div style="margin-top:12px">
+            <label for="when">Fecha y hora automática</label>
+            <input id="when" name="when" type="text" readonly aria-readonly="true" inputmode="none">
           </div>
 
-          <div>
-            <label>Colmena / Caja</label>
-            <input id="hive" type="text" readonly aria-readonly="true">
+          <div style="margin-top:14px" class="sectionTitle">Lecturas</div>
+          <div class="row2">
+            <div>
+              <label for="temp">Temperatura (°C)</label>
+              <input id="temp" name="temp" type="number" required step="0.1" inputmode="decimal" placeholder="Ej: 29.5">
+            </div>
+            <div>
+              <label for="hum">Humedad ambiental (%)</label>
+              <input id="hum" name="hum" type="number" required step="1" min="0" max="100" inputmode="numeric" placeholder="Ej: 88">
+            </div>
           </div>
-        </div>
-
-        <div style="margin-top:12px">
-          <label>Fecha y hora automática</label>
-          <input id="when" type="text" readonly aria-readonly="true" inputmode="none">
-        </div>
-
-        <div style="margin-top:14px" class="sectionTitle">Lecturas</div>
-
-        <div class="row2">
-          <div>
-            <label>Temperatura (°C)</label>
-            <input id="temp" type="number" step="0.1" inputmode="decimal" placeholder="Ej: 29.5">
-          </div>
-
-          <div>
-            <label>Humedad ambiental (%)</label>
-            <input id="hum" type="number" step="1" inputmode="numeric" placeholder="Ej: 88">
-          </div>
-        </div>
-
-        <div class="row2" style="margin-top:12px">
-          <div>
-            <label>Sonido dentro/cerca de la colmena</label>
-            <select id="soundLevel">
-              <option value="no_medido" selected>No medido</option>
-              <option value="bajo">Bajo</option>
-              <option value="medio">Medio</option>
-              <option value="alto">Alto</option>
-            </select>
+          <div class="row2" style="margin-top:12px">
+            <div>
+              <label for="soundLevel">Sonido dentro/cerca de la colmena</label>
+              <select id="soundLevel" name="soundLevel" required>
+                <option value="">Seleccionar sonido</option>
+                <option value="no_medido">No medido</option>
+                <option value="bajo">Bajo</option>
+                <option value="medio">Medio</option>
+                <option value="alto">Alto</option>
+              </select>
+            </div>
+            <div>
+              <label for="waterStatus">Agua / humedad líquida detectada</label>
+              <select id="waterStatus" name="waterStatus" required>
+                <option value="">Seleccionar estado</option>
+                <option value="no_medido">No medido</option>
+                <option value="no">No</option>
+                <option value="si">Sí</option>
+              </select>
+            </div>
           </div>
 
-          <div>
-            <label>Valor sensor sonido Arduino</label>
-            <input id="soundValue" type="number" step="1" min="0" max="1023" inputmode="numeric" placeholder="Ej: 420">
-          </div>
-        </div>
-
-        <div class="row2" style="margin-top:12px">
-          <div>
-            <label>Agua / humedad líquida detectada</label>
-            <select id="waterStatus">
-              <option value="no_medido" selected>No medido</option>
-              <option value="no">No</option>
-              <option value="si">Sí</option>
-            </select>
+          <div class="riskBox" id="riskBox" aria-live="polite">
+            <b id="riskTitle">Riesgo: --</b>
+            <div class="small" id="riskDetail" style="margin-top:4px">Completa los datos para calcular una alerta simple.</div>
           </div>
 
-          <div>
-            <label>Movimiento / inclinación de caja</label>
-            <select id="movementStatus">
-              <option value="no_medido" selected>No medido</option>
-              <option value="no">No</option>
-              <option value="si">Sí</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="riskBox" id="riskBox">
-          <b id="riskTitle">Riesgo: --</b>
-          <div class="small" id="riskDetail" style="margin-top:4px">
-            Completa los datos para calcular una alerta simple.
-          </div>
-        </div>
-
-        <div style="margin-top:14px" class="sectionTitle">Chequeo visual rápido</div>
-
-        <div class="row2">
-          <div>
-            <label>Actividad en la entrada</label>
-            <select id="activity">
-              <option value="media" selected>Media</option>
-              <option value="alta">Alta</option>
-              <option value="baja">Baja</option>
-              <option value="no_obs">No observado</option>
-            </select>
+          <div style="margin-top:14px" class="sectionTitle">Chequeo visual rápido</div>
+          <div class="row2">
+            <div>
+              <label for="activity">Actividad en la entrada</label>
+              <select id="activity" name="activity" required>
+                <option value="">Seleccionar actividad</option>
+                <option value="alta">Alta</option>
+                <option value="media">Media</option>
+                <option value="baja">Baja</option>
+                <option value="no_obs">No observado</option>
+              </select>
+            </div>
+            <div>
+              <label for="beesPerMinute">Número de abejas ingresando por minuto</label>
+              <input id="beesPerMinute" name="beesPerMinute" type="number" required min="0" step="1" inputmode="numeric" placeholder="Ej: 12" aria-describedby="beesHint">
+              <div class="small" id="beesHint" style="margin-top:6px">Cuenta las abejas que ingresan durante un minuto. Si no ingresó ninguna, escribe 0.</div>
+            </div>
           </div>
 
-          <div>
-            <label>Plagas visibles</label>
-            <select id="pests">
-              <option value="ninguna" selected>Ninguna</option>
-              <option value="hormigas">Hormigas</option>
-              <option value="mosquitas">Mosquitas / fóridas</option>
-              <option value="avispas">Avispas</option>
-              <option value="aranas">Arañas</option>
-              <option value="varias">Varias plagas</option>
-              <option value="otros">Otros insectos</option>
-            </select>
-          </div>
-        </div>
+          <fieldset style="margin-top:14px" aria-describedby="predatorHint">
+            <legend class="sectionTitle">Número de predadores</legend>
+            <div class="small" id="predatorHint">Escribe los predadores observados y la cantidad total. Si no hay, escribe «Ninguno» y 0.</div>
+            <div class="row2" style="margin-top:8px">
+              <div>
+                <label for="predatorDescription">Predadores observados (texto libre)</label>
+                <input id="predatorDescription" name="predatorDescription" type="text" required placeholder="Ej: hormigas y avispas, o Ninguno">
+              </div>
+              <div>
+                <label for="predatorCount">Cantidad total de predadores</label>
+                <input id="predatorCount" name="predatorCount" type="number" required min="0" step="1" inputmode="numeric" placeholder="Ej: 5">
+              </div>
+            </div>
+          </fieldset>
 
-        <div class="row2" style="margin-top:12px">
-          <div>
-            <label>Humedad visible / moho</label>
-            <select id="mold">
-              <option value="seco" selected>Seco</option>
-              <option value="humedo">Húmedo</option>
-              <option value="moho">Moho</option>
-            </select>
-          </div>
-
-          <div>
-            <label>Estado de la caja</label>
-            <select id="boxState">
-              <option value="ok" selected>OK</option>
-              <option value="grietas">Grietas / huecos</option>
-              <option value="techo">Techo con filtración</option>
-              <option value="inclinada">Caja inclinada</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row2" style="margin-top:12px">
-          <div>
-            <label>Sombra / exposición</label>
-            <select id="shade">
-              <option value="sombra" selected>Sombra</option>
-              <option value="parcial">Parcial</option>
-              <option value="sol">Sol directo</option>
-            </select>
+          <div class="row2" style="margin-top:12px">
+            <div>
+              <label for="mold">Humedad visible / moho</label>
+              <select id="mold" name="mold" required>
+                <option value="">Seleccionar estado</option>
+                <option value="seco">Seco</option>
+                <option value="humedo">Húmedo</option>
+                <option value="moho">Moho</option>
+              </select>
+            </div>
+            <fieldset id="boxState" aria-describedby="boxStateHint boxStateError">
+              <legend>Estado de la caja</legend>
+              <div class="small" id="boxStateHint">Marca una o varias. «OK» se usa sola.</div>
+              <div class="choices">
+                <label class="choice"><input type="checkbox" name="boxState" value="ok"><span>OK</span></label>
+                <label class="choice"><input type="checkbox" name="boxState" value="grietas"><span>Grietas / huecos</span></label>
+                <label class="choice"><input type="checkbox" name="boxState" value="techo"><span>Techo con filtración</span></label>
+                <label class="choice"><input type="checkbox" name="boxState" value="inclinada"><span>Caja inclinada</span></label>
+              </div>
+              <div class="groupError" id="boxStateError" aria-live="polite"></div>
+            </fieldset>
           </div>
 
-          <div>
-            <label>Acción realizada</label>
-            <select id="actionTaken">
-              <option value="ninguna" selected>Ninguna</option>
-              <option value="limpieza">Limpieza</option>
-              <option value="barrera_hormigas">Barrera anti-hormigas</option>
-              <option value="reparar_techo">Reparar techo</option>
-              <option value="mover_sombra">Mover a sombra</option>
-              <option value="otro">Otro</option>
-            </select>
+          <div class="row2" style="margin-top:12px">
+            <div>
+              <label for="shade">Sombra / exposición</label>
+              <select id="shade" name="shade" required>
+                <option value="">Seleccionar exposición</option>
+                <option value="sombra">Sombra</option>
+                <option value="parcial">Parcial</option>
+                <option value="sol">Sol directo</option>
+              </select>
+            </div>
+            <fieldset id="actionTaken" aria-describedby="actionTakenHint actionTakenError">
+              <legend>Acción realizada</legend>
+              <div class="small" id="actionTakenHint">Marca una o varias. «Ninguna» se usa sola.</div>
+              <div class="choices">
+                <label class="choice"><input type="checkbox" name="actionTaken" value="ninguna"><span>Ninguna</span></label>
+                <label class="choice"><input type="checkbox" name="actionTaken" value="limpieza"><span>Limpieza</span></label>
+                <label class="choice"><input type="checkbox" name="actionTaken" value="barrera_hormigas"><span>Barrera anti-hormigas</span></label>
+                <label class="choice"><input type="checkbox" name="actionTaken" value="reparar_techo"><span>Reparar techo</span></label>
+                <label class="choice"><input type="checkbox" name="actionTaken" value="mover_sombra"><span>Mover a sombra</span></label>
+                <label class="choice"><input type="checkbox" name="actionTaken" value="otro"><span>Otro</span></label>
+              </div>
+              <div class="groupError" id="actionTakenError" aria-live="polite"></div>
+              <div id="actionOtherWrap" hidden style="margin-top:8px">
+                <label for="actionOther">Especifica la otra acción realizada</label>
+                <input id="actionOther" name="actionOther" type="text" disabled placeholder="Describe la acción realizada">
+              </div>
+            </fieldset>
           </div>
-        </div>
 
-        <div style="margin-top:12px">
-          <label>Notas</label>
-          <textarea id="note" placeholder="Ej: hormigas en la base, sonido alto, lluvia, caja húmeda..."></textarea>
-        </div>
+          <fieldset style="margin-top:16px" aria-describedby="measurementsHint">
+            <legend class="sectionTitle">Batumen y piquera (opcional)</legend>
+            <div class="small" id="measurementsHint">Puedes dejar estos campos vacíos. Usa la misma unidad para las cuatro medidas de piquera.</div>
+            <div style="margin-top:8px">
+              <label for="batumenPct">% de batumen en tapa (opcional)</label>
+              <input id="batumenPct" name="batumenPct" type="number" min="0" max="100" step="any" inputmode="decimal" placeholder="Ej: 35">
+            </div>
+            <div class="row2" style="margin-top:12px">
+              <div>
+                <label for="entranceLi">Li piquera (opcional)</label>
+                <input id="entranceLi" name="entranceLi" type="number" min="0" step="any" inputmode="decimal" placeholder="Ej: 18.9">
+              </div>
+              <div>
+                <label for="entranceLs">Ls piquera (opcional)</label>
+                <input id="entranceLs" name="entranceLs" type="number" min="0" step="any" inputmode="decimal" placeholder="Ej: 8.3">
+              </div>
+            </div>
+            <div class="row2" style="margin-top:12px">
+              <div>
+                <label for="entranceLd">Ld piquera (opcional)</label>
+                <input id="entranceLd" name="entranceLd" type="number" min="0" step="any" inputmode="decimal" placeholder="Ej: 6.9">
+              </div>
+              <div>
+                <label for="entranceLizq">Lizq piquera (opcional)</label>
+                <input id="entranceLizq" name="entranceLizq" type="number" min="0" step="any" inputmode="decimal" placeholder="Ej: 5.1">
+              </div>
+            </div>
+          </fieldset>
 
-        <div style="margin-top:12px">
-          <button class="btn" id="saveBtn">Guardar lectura</button>
-          <div class="small" id="saveMsg" style="margin-top:8px"></div>
-        </div>
+          <div style="margin-top:12px">
+            <label for="note">Notas</label>
+            <textarea id="note" name="note" required placeholder="Describe lo observado o escribe «Sin observaciones»."></textarea>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn" id="saveBtn" type="submit">Guardar lectura</button>
+            <div class="small" id="saveMsg" style="margin-top:8px" role="status" aria-live="polite"></div>
+          </div>
+        </form>
 
         <div class="kpi">
           <div class="pill">Pendientes: <b id="pendingCount">0</b></div>
           <div class="pill">Sincronizadas: <b id="syncedCount">0</b></div>
           <div class="pill">Última sync: <b id="lastSync">--</b></div>
         </div>
-
         <div class="small" style="margin-top:10px" id="syncHint">
           <span class="warn">Nota:</span> la sincronización ocurre cuando abres esta app y hay internet.
         </div>
@@ -488,770 +520,545 @@
           </div>
           <div class="tag" id="syncTag">SYNC: --</div>
         </div>
-
         <div class="list" id="list"></div>
       </div>
-
     </div>
   </div>
 
 <script>
 (function(){
-  // La sincronización se realiza mediante /api/sync.
-  // El token de Airtable permanece oculto en las variables de entorno de Vercel.
-var AIRTABLE_STATUS_VALUE = "OK";
+  "use strict";
 
-  // Datos fijos porque por ahora existe un solo colegio y una sola colmena.
-  // Cambia estos dos textos cuando tengas el nombre definitivo del colegio.
+  // El token de Airtable sigue en el servidor /api/sync, nunca en este archivo.
+  var AIRTABLE_STATUS_VALUE = "OK";
+  // Conserva el nombre actual de la columna para no romper la base existente.
+  // Si la renombras en Airtable a Observador, cambia este valor a "Observador".
+  var AIRTABLE_OBSERVER_FIELD = "Voluntario";
+  // "multipleSelects": Estado de la caja y Acción realizada son Selección múltiple.
+  // Usa "text" si esas dos columnas son Texto de una línea o Texto largo.
+  var AIRTABLE_MULTI_FIELD_TYPE = "multipleSelects";
+
   var SCHOOL_NAME = "Colegio 01";
   var HIVE_CODE = "AB-01";
-
-  // v2 separa los nuevos registros de los registros antiguos sin voluntario/semana.
+  // Se conserva la clave para leer las visitas guardadas con la versión anterior.
   var STORAGE_KEY = "ab_field_entries_v2";
   var META_KEY = "ab_field_meta_v1";
+  var GROUPS = ["boxState", "actionTaken"];
+  var EXCLUSIVE = {boxState:"ok", actionTaken:"ninguna"};
+  var OPTIONAL_NUMBERS = {
+    batumenPct:"Batumen en tapa %",
+    entranceLi:"Li piquera",
+    entranceLs:"Ls piquera",
+    entranceLd:"Ld piquera",
+    entranceLizq:"Lizq piquera"
+  };
+  var SELECT_LABELS = {
+    week:"Semana de seguimiento",
+    soundLevel:"Sonido dentro/cerca de la colmena",
+    waterStatus:"Agua / humedad líquida detectada",
+    activity:"Actividad en la entrada",
+    mold:"Humedad visible / moho",
+    shade:"Sombra / exposición"
+  };
+  var MAPS = {
+    soundLevel:{no_medido:"No medido", bajo:"Bajo", medio:"Medio", alto:"Alto"},
+    waterStatus:{no_medido:"No medido", no:"No", si:"Sí"},
+    activity:{alta:"Alta", media:"Media", baja:"Baja", no_obs:"No observado"},
+    pests:{ninguna:"Ninguna", hormigas:"Hormigas", mosquitas:"Mosquitas / fóridas", avispas:"Avispas", aranas:"Arañas", varias:"Varias plagas", otros:"Otros insectos"},
+    mold:{seco:"Seco", humedo:"Húmedo", moho:"Moho"},
+    boxState:{ok:"OK", grietas:"Grietas / huecos", techo:"Techo con filtración", inclinada:"Caja inclinada"},
+    shade:{sombra:"Sombra", parcial:"Parcial", sol:"Sol directo"},
+    actionTaken:{ninguna:"Ninguna", limpieza:"Limpieza", barrera_hormigas:"Barrera anti-hormigas", reparar_techo:"Reparar techo", mover_sombra:"Mover a sombra", otro:"Otro"}
+  };
 
-  function $(id){ return document.getElementById(id); }
-
-  var elVolunteer = $("volunteer");
-  var elWeek = $("week");
-  var elSchool = $("school");
-  var elHive = $("hive");
-  var elWhen = $("when");
-  var elTemp = $("temp");
-  var elHum  = $("hum");
-
-  var elSoundLevel = $("soundLevel");
-  var elSoundValue = $("soundValue");
-  var elWaterStatus = $("waterStatus");
-  var elMovementStatus = $("movementStatus");
-
-  var elActivity = $("activity");
-  var elPests = $("pests");
-  var elMold = $("mold");
-  var elBoxState = $("boxState");
-  var elShade = $("shade");
-  var elActionTaken = $("actionTaken");
-  var elNote = $("note");
-
-  var elRiskBox = $("riskBox");
-  var elRiskTitle = $("riskTitle");
-  var elRiskDetail = $("riskDetail");
-
-  var elSave = $("saveBtn");
-  var elMsg  = $("saveMsg");
-
-  var elPending = $("pendingCount");
-  var elSynced  = $("syncedCount");
-  var elLastSync= $("lastSync");
-  var elList    = $("list");
-  var elNetText = $("netText");
-  var elNetDot  = $("netDot");
-  var elSyncTag = $("syncTag");
-function pad2(n){
-    return (n < 10 ? "0" : "") + n;
-  }
-
+  function $(id){return document.getElementById(id);}
+  function pad2(n){return (n < 10 ? "0" : "") + n;}
   function toDatetimeLocalValue(d){
-    return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate()) +
-      "T" + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+    return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate())+
+      "T"+pad2(d.getHours())+":"+pad2(d.getMinutes());
+  }
+  // Los registros anteriores tienen texto; los nuevos, listas de opciones.
+  function asArray(value){
+    if (Array.isArray(value)) return value;
+    return value ? [value] : [];
+  }
+  function selected(group){
+    return Array.from(document.querySelectorAll('input[name="'+group+'"]:checked'))
+      .map(function(el){return el.value;});
+  }
+  function labelValue(type, value){
+    return (MAPS[type] && MAPS[type][value]) || value || "--";
+  }
+  function optionLabels(type, value){
+    return asArray(value).map(function(v){return labelValue(type, v);});
+  }
+  function labelOptions(type, value){return optionLabels(type, value).join(", ") || "--";}
+  function airtableOptions(type, value){
+    var labels = optionLabels(type, value);
+    return AIRTABLE_MULTI_FIELD_TYPE === "text" ? labels.join(", ") : labels;
+  }
+  function observerOf(row){return row.observerName || row.volunteer || "Sin nombre";}
+  function hasNumber(value){
+    return value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
+  }
+  function validCount(value){
+    return hasNumber(value) && Number.isInteger(Number(value)) && Number(value) >= 0;
+  }
+  function inputNumber(id){
+    return $(id).value === "" ? null : Number($(id).value);
+  }
+  // Los registros antiguos no incluyen cantidades: se conserva ese dato como desconocido.
+  function predatorsOf(row){
+    var description = row.predatorDescription;
+    if (!description){
+      description = labelOptions("pests", row.pests);
+      if (row.pestsOther && asArray(row.pests).indexOf("otros") !== -1){
+        description += " ("+row.pestsOther+")";
+      }
+    }
+    return {
+      description:description || "--",
+      count:validCount(row.predatorCount) ? Number(row.predatorCount) : null
+    };
+  }
+  function fmtNum(n, digits){
+    return n === null || n === undefined || n === "" || !Number.isFinite(Number(n))
+      ? "--" : Number(n).toFixed(digits);
   }
 
   function loadAll(){
-    try{
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    }catch(e){
-      return [];
-    }
+    var rows = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    if (!Array.isArray(rows)) throw new Error("Formato de datos guardados inválido.");
+    return rows;
   }
-
-  function saveAll(rows){
-    try{
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
-    }catch(e){}
-  }
-
+  // No ocultar un fallo de almacenamiento: el formulario solo se limpia si se guardó.
+  function saveAll(rows){localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));}
   function loadMeta(){
     try{
-      return JSON.parse(localStorage.getItem(META_KEY) || "{}");
-    }catch(e){
-      return {};
-    }
+      var meta = JSON.parse(localStorage.getItem(META_KEY) || "{}");
+      return meta && typeof meta === "object" && !Array.isArray(meta) ? meta : {};
+    }catch(e){return {};}
   }
-
   function saveMeta(meta){
-    try{
-      localStorage.setItem(META_KEY, JSON.stringify(meta));
-    }catch(e){}
+    try{localStorage.setItem(META_KEY, JSON.stringify(meta));return true;}
+    catch(e){return false;}
   }
-
   function getDeviceId(){
     var meta = loadMeta();
     if (!meta.deviceId){
-      meta.deviceId = "dev_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+      meta.deviceId = "dev_"+Math.random().toString(16).slice(2)+"_"+Date.now();
       saveMeta(meta);
     }
     return meta.deviceId;
   }
-function fmtNum(n, d){
-    if (n === null || n === undefined || n === "" || isNaN(n)) return "--";
-    return Number(n).toFixed(d);
-  }
-
-  function labelValue(type, value){
-    var maps = {
-      soundLevel: {
-        no_medido: "No medido",
-        bajo: "Bajo",
-        medio: "Medio",
-        alto: "Alto"
-      },
-      waterStatus: {
-        no_medido: "No medido",
-        no: "No",
-        si: "Sí"
-      },
-      movementStatus: {
-        no_medido: "No medido",
-        no: "No",
-        si: "Sí"
-      },
-      activity: {
-        alta: "Alta",
-        media: "Media",
-        baja: "Baja",
-        no_obs: "No observado"
-      },
-      pests: {
-        ninguna: "Ninguna",
-        hormigas: "Hormigas",
-        mosquitas: "Mosquitas",
-        avispas: "Avispas",
-        aranas: "Arañas",
-        varias: "Varias",
-        otros: "Otros"
-      },
-      mold: {
-        seco: "Seco",
-        humedo: "Húmedo",
-        moho: "Moho"
-      },
-      boxState: {
-        ok: "OK",
-        grietas: "Grietas",
-        techo: "Techo filtración",
-        inclinada: "Inclinada"
-      },
-      shade: {
-        sombra: "Sombra",
-        parcial: "Parcial",
-        sol: "Sol directo"
-      },
-      actionTaken: {
-        ninguna: "Ninguna",
-        limpieza: "Limpieza",
-        barrera_hormigas: "Barrera anti-hormigas",
-        reparar_techo: "Reparar techo",
-        mover_sombra: "Mover a sombra",
-        otro: "Otro"
-      }
-    };
-
-    if (maps[type] && maps[type][value]) return maps[type][value];
-    return value || "--";
-  }
-
-  function isOnline(){
-    return !!navigator.onLine;
-  }
-
+  function isOnline(){return !!navigator.onLine;}
   function setNetUI(){
-    if (isOnline()){
-      elNetText.textContent = "Online";
-      elNetDot.className = "dot ok";
-    } else {
-      elNetText.textContent = "Offline";
-      elNetDot.className = "dot off";
-    }
+    $("netText").textContent = isOnline() ? "Online" : "Offline";
+    $("netDot").className = "dot " + (isOnline() ? "ok" : "off");
   }
-
-  function setSyncTag(text){
-    elSyncTag.textContent = text;
-  }
-
+  function setSyncTag(text){$("syncTag").textContent = text;}
   function showMsg(text, ok){
-    elMsg.textContent = text;
-    elMsg.style.color = ok ? "#bff8dc" : "#fff1c2";
+    $("saveMsg").textContent = text;
+    $("saveMsg").style.color = ok ? "#bff8dc" : "#fff1c2";
+  }
+
+  function updateOtherFields(){
+    var actionOther = selected("actionTaken").indexOf("otro") !== -1;
+    $("actionOtherWrap").hidden = !actionOther;
+    $("actionOther").disabled = !actionOther;
+    $("actionOther").required = actionOther;
+  }
+  function handleGroupChange(event){
+    var input = event.target;
+    if (input.type !== "checkbox") return;
+    var exclusive = EXCLUSIVE[input.name];
+    if (input.checked){
+      document.querySelectorAll('input[name="'+input.name+'"]')
+        .forEach(function(other){
+          if (other !== input && (input.value === exclusive || other.value === exclusive)){
+            other.checked = false;
+          }
+        });
+    }
+    $(input.name+"Error").textContent = "";
+    $(input.name).removeAttribute("aria-invalid");
+    updateOtherFields();
+    updateRiskPreview();
+  }
+  function validationError(el, message){
+    showMsg(message, false);
+    el.focus();
+    el.scrollIntoView({block:"center", behavior:"smooth"});
+    return false;
+  }
+  function validateForm(){
+    var observer = $("observerName").value.trim();
+    if (!observer || observer.split(/\s+/).length < 2){
+      return validationError($("observerName"), "Escribe el nombre y apellido del observador.");
+    }
+    var week = Number($("week").value);
+    if (!Number.isInteger(week) || week < 1 || week > 13){
+      return validationError($("week"), "Selecciona una semana entre 1 y 13.");
+    }
+    if (!SCHOOL_NAME.trim() || !HIVE_CODE.trim()){
+      return validationError($("school"), "Configura el colegio y la colmena antes de registrar una visita.");
+    }
+    if ($("temp").value === "" || !Number.isFinite(Number($("temp").value)) || !$("temp").checkValidity()){
+      return validationError($("temp"), "Completa una temperatura válida, con hasta un decimal.");
+    }
+    if ($("hum").value === "" || !Number.isFinite(Number($("hum").value)) || !$("hum").checkValidity()){
+      return validationError($("hum"), "Completa la humedad ambiental con un entero entre 0 y 100%.");
+    }
+    for (var id in SELECT_LABELS){
+      if (!$(id).value){
+        return validationError($(id), "Completa el campo «"+SELECT_LABELS[id]+"».");
+      }
+    }
+    if (!$("predatorDescription").value.trim()){
+      return validationError($("predatorDescription"), "Escribe los predadores observados. Si no hay, escribe «Ninguno».");
+    }
+    if (!validCount(inputNumber("predatorCount")) || !$("predatorCount").checkValidity()){
+      return validationError($("predatorCount"), "Completa la cantidad de predadores con un entero igual o mayor que 0.");
+    }
+    if (!validCount(inputNumber("beesPerMinute")) || !$("beesPerMinute").checkValidity()){
+      return validationError($("beesPerMinute"), "Completa el número de abejas ingresando por minuto con un entero igual o mayor que 0.");
+    }
+    for (var i=0;i<GROUPS.length;i++){
+      var group = GROUPS[i];
+      var values = selected(group);
+      if (!values.length){
+        var title = $(group).querySelector("legend").textContent;
+        $(group+"Error").textContent = "Marca al menos una opción.";
+        $(group).setAttribute("aria-invalid", "true");
+        return validationError($(group).querySelector("input"), "Completa «"+title+"»: marca al menos una opción.");
+      }
+      if (values.length > 1 && values.indexOf(EXCLUSIVE[group]) !== -1){
+        return validationError($(group).querySelector("input"), "La opción «"+labelValue(group, EXCLUSIVE[group])+"» debe marcarse sola.");
+      }
+    }
+    if (selected("actionTaken").indexOf("otro") !== -1 && !$("actionOther").value.trim()){
+      return validationError($("actionOther"), "Especifica la otra acción realizada.");
+    }
+    if (!$("note").value.trim()){
+      return validationError($("note"), "Completa Notas. Si no hay novedades, escribe «Sin observaciones».");
+    }
+    // Los campos opcionales pueden estar vacíos. Si se usan, deben ser números válidos.
+    for (var optionalId in OPTIONAL_NUMBERS){
+      var input = $(optionalId);
+      if (!input.checkValidity() || (input.value !== "" && !hasNumber(inputNumber(optionalId)))){
+        var message = optionalId === "batumenPct"
+          ? "El porcentaje de batumen debe estar entre 0 y 100, o quedar vacío."
+          : "Completa «"+OPTIONAL_NUMBERS[optionalId]+"» con un número igual o mayor que 0, o deja el campo vacío.";
+        return validationError(input, message);
+      }
+    }
+    return true;
+  }
+  function currentData(){
+    var actions = selected("actionTaken");
+    var data = {
+      temp:$("temp").value,
+      hum:$("hum").value,
+      soundLevel:$("soundLevel").value,
+      waterStatus:$("waterStatus").value,
+      activity:$("activity").value,
+      predatorDescription:$("predatorDescription").value.trim(),
+      predatorCount:inputNumber("predatorCount"),
+      beesPerMinute:inputNumber("beesPerMinute"),
+      mold:$("mold").value,
+      boxState:selected("boxState"),
+      shade:$("shade").value,
+      actionTaken:actions,
+      actionOther:actions.indexOf("otro") !== -1 ? $("actionOther").value.trim() : ""
+    };
+    Object.keys(OPTIONAL_NUMBERS).forEach(function(id){data[id] = inputNumber(id);});
+    return data;
   }
 
   function assessRisk(data){
     var reasons = [];
-
-    var hum = Number(data.hum);
-    var temp = Number(data.temp);
-
-    if (!isNaN(hum) && hum >= 90){
-      reasons.push("humedad ambiental muy alta");
+    var hum = data.hum === "" || data.hum === null || data.hum === undefined ? NaN : Number(data.hum);
+    var temp = data.temp === "" || data.temp === null || data.temp === undefined ? NaN : Number(data.temp);
+    if (Number.isFinite(hum) && hum >= 90) reasons.push("humedad ambiental muy alta");
+    if (Number.isFinite(temp) && temp >= 36) reasons.push("temperatura alta");
+    if (data.soundLevel === "alto") reasons.push("sonido alto");
+    if (data.waterStatus === "si") reasons.push("agua o humedad líquida");
+    if (validCount(data.predatorCount) && Number(data.predatorCount) > 0){
+      reasons.push("predadores observados: "+(data.predatorDescription || "sin descripción")+
+        " (cantidad: "+data.predatorCount+")");
+    } else if (!hasNumber(data.predatorCount)){
+      var pests = asArray(data.pests).filter(function(v){return v !== "ninguna";});
+      if (pests.length) reasons.push("predadores observados: "+predatorsOf(data).description);
     }
-
-    if (!isNaN(temp) && temp >= 36){
-      reasons.push("temperatura alta");
+    if (data.mold === "moho") reasons.push("moho visible");
+    var boxes = asArray(data.boxState).filter(function(v){return v !== "ok";});
+    if (boxes.length) reasons.push("problema en caja: "+labelOptions("boxState", boxes));
+    if (reasons.length){
+      return {level:"alerta", title:"Riesgo: ALERTA", detail:"Revisar colmena: "+reasons.join(", ")+"."};
     }
-
-    if (data.soundLevel === "alto"){
-      reasons.push("sonido alto");
-    }
-
-    if (data.waterStatus === "si"){
-      reasons.push("agua o humedad líquida");
-    }
-
-    if (data.movementStatus === "si"){
-      reasons.push("caja movida o inclinada");
-    }
-
-    if (data.pests && data.pests !== "ninguna"){
-      reasons.push("plagas visibles: " + labelValue("pests", data.pests));
-    }
-
-    if (data.mold === "moho"){
-      reasons.push("moho visible");
-    }
-
-    if (data.boxState && data.boxState !== "ok"){
-      reasons.push("problema en caja: " + labelValue("boxState", data.boxState));
-    }
-
-    if (reasons.length > 0){
-      return {
-        level: "alerta",
-        title: "Riesgo: ALERTA",
-        detail: "Revisar colmena: " + reasons.join(", ") + "."
-      };
-    }
-
     var checks = [];
-
-    if (!isNaN(hum) && hum >= 80){
-      checks.push("humedad elevada");
+    if (Number.isFinite(hum) && hum >= 80) checks.push("humedad elevada");
+    if (data.activity === "baja" || data.activity === "no_obs") checks.push("actividad baja o no observada");
+    if (data.mold === "humedo") checks.push("caja húmeda");
+    if (data.shade === "sol") checks.push("sol directo");
+    if (checks.length){
+      return {level:"revisar", title:"Riesgo: REVISAR", detail:"Observar en la siguiente visita: "+checks.join(", ")+"."};
     }
-
-    if (data.activity === "baja" || data.activity === "no_obs"){
-      checks.push("actividad baja o no observada");
+    var complete = Number.isFinite(temp) && Number.isFinite(hum) && data.soundLevel && data.waterStatus &&
+      data.activity && data.mold && data.shade && asArray(data.boxState).length &&
+      ((validCount(data.predatorCount) && data.predatorDescription && validCount(data.beesPerMinute)) || asArray(data.pests).length);
+    if (!complete){
+      return {level:"pendiente", title:"Riesgo: --", detail:"Completa las lecturas y el chequeo visual para calcular una alerta simple."};
     }
-
-    if (data.mold === "humedo"){
-      checks.push("caja húmeda");
-    }
-
-    if (data.shade === "sol"){
-      checks.push("sol directo");
-    }
-
-    if (checks.length > 0){
-      return {
-        level: "revisar",
-        title: "Riesgo: REVISAR",
-        detail: "Observar en la siguiente visita: " + checks.join(", ") + "."
-      };
-    }
-
-    return {
-      level: "normal",
-      title: "Riesgo: NORMAL",
-      detail: "No se registran señales fuertes de riesgo."
-    };
+    return {level:"normal", title:"Riesgo: NORMAL", detail:"No se registran señales fuertes de riesgo."};
   }
-
   function updateRiskPreview(){
-    var data = {
-      temp: elTemp.value,
-      hum: elHum.value,
-      soundLevel: elSoundLevel.value,
-      waterStatus: elWaterStatus.value,
-      movementStatus: elMovementStatus.value,
-      activity: elActivity.value,
-      pests: elPests.value,
-      mold: elMold.value,
-      boxState: elBoxState.value,
-      shade: elShade.value
-    };
-
-    var risk = assessRisk(data);
-
-    elRiskTitle.textContent = risk.title;
-    elRiskDetail.textContent = risk.detail;
-
-    elRiskTitle.className = "";
-    if (risk.level === "normal") elRiskTitle.className = "riskNormal";
-    if (risk.level === "revisar") elRiskTitle.className = "riskCheck";
-    if (risk.level === "alerta") elRiskTitle.className = "riskAlert";
+    var risk = assessRisk(currentData());
+    $("riskTitle").textContent = risk.title;
+    $("riskDetail").textContent = risk.detail;
+    $("riskTitle").className = {normal:"riskNormal", revisar:"riskCheck", alerta:"riskAlert"}[risk.level] || "";
   }
 
   function render(){
-    var rows = loadAll();
-    var pending = 0;
-    var synced = 0;
-
-    for (var i=0;i<rows.length;i++){
-      if (rows[i].synced) synced++;
-      else pending++;
-    }
-
-    elPending.textContent = String(pending);
-    elSynced.textContent = String(synced);
-
-    var meta = loadMeta();
-    elLastSync.textContent = meta.lastSyncAt ? meta.lastSyncAt : "--";
-
-    rows.sort(function(a,b){
-      return (b.ts - a.ts);
-    });
-
-    var last = rows.slice(0, 8);
-
-    elList.innerHTML = "";
-
-    for (var j=0;j<last.length;j++){
-      var r = last[j];
-
-      var risk = r.risk || assessRisk(r);
-
+    var rows;
+    try{rows = loadAll();}
+    catch(e){showMsg("No se pueden leer los registros de este dispositivo. No se guardarán datos encima de ellos.", false);return;}
+    var synced = rows.filter(function(row){return row.synced;}).length;
+    $("pendingCount").textContent = String(rows.length - synced);
+    $("syncedCount").textContent = String(synced);
+    $("lastSync").textContent = loadMeta().lastSyncAt || "--";
+    rows.sort(function(a,b){return b.ts - a.ts;});
+    $("list").textContent = "";
+    rows.slice(0,8).forEach(function(row){
+      var risk = row.risk || assessRisk(row);
       var div = document.createElement("div");
       div.className = "item";
-
       var left = document.createElement("div");
-
       var title = document.createElement("b");
-      title.textContent =
-        "Semana " + (r.week || "--") + " · " +
-        (r.volunteer || "Sin nombre") + " · " +
-        (r.hive || HIVE_CODE) + " · " +
-        fmtNum(r.temp,1) + "C · " +
-        fmtNum(r.hum,0) + "% · " +
-        "Sonido: " + labelValue("soundLevel", r.soundLevel || "no_medido");
-
+      title.textContent = "Semana "+(row.week || "--")+" · "+observerOf(row)+" · "+(row.hive || HIVE_CODE)+
+        " · "+fmtNum(row.temp,1)+"°C · "+fmtNum(row.hum,0)+"% · Sonido: "+labelValue("soundLevel", row.soundLevel);
+      var extra = [];
+      if (row.waterStatus && row.waterStatus !== "no") extra.push("Agua: "+labelValue("waterStatus", row.waterStatus));
+      if (row.activity) extra.push("Actividad: "+labelValue("activity", row.activity));
+      var predators = predatorsOf(row);
+      extra.push("Predadores: "+predators.description);
+      extra.push("Cantidad de predadores: "+(predators.count === null ? "no registrada" : predators.count));
+      extra.push("Abejas ingresando/min: "+(validCount(row.beesPerMinute) ? Number(row.beesPerMinute) : "no registrado"));
+      if (row.mold) extra.push("Humedad: "+labelValue("mold", row.mold));
+      extra.push("Caja: "+labelOptions("boxState", row.boxState));
+      if (row.shade) extra.push("Exposición: "+labelValue("shade", row.shade));
+      extra.push("Acciones: "+labelOptions("actionTaken", row.actionTaken));
+      if (row.actionOther && asArray(row.actionTaken).indexOf("otro") !== -1) extra.push("Otra acción: "+row.actionOther);
+      Object.keys(OPTIONAL_NUMBERS).forEach(function(id){
+        if (hasNumber(row[id])) extra.push(OPTIONAL_NUMBERS[id]+": "+Number(row[id]));
+      });
+      extra.push(risk.title);
       var metaLine = document.createElement("div");
       metaLine.className = "meta";
-
-      var extra = [];
-
-      if (r.soundValue !== null && r.soundValue !== undefined && r.soundValue !== ""){
-        extra.push("Valor sonido:" + r.soundValue);
-      }
-
-      if (r.waterStatus && r.waterStatus !== "no_medido" && r.waterStatus !== "no"){
-        extra.push("Agua:" + labelValue("waterStatus", r.waterStatus));
-      }
-
-      if (r.movementStatus && r.movementStatus !== "no_medido" && r.movementStatus !== "no"){
-        extra.push("Movimiento:" + labelValue("movementStatus", r.movementStatus));
-      }
-
-      if (r.activity && r.activity !== "media"){
-        extra.push("Act:" + labelValue("activity", r.activity));
-      }
-
-      if (r.pests && r.pests !== "ninguna"){
-        extra.push("Plagas:" + labelValue("pests", r.pests));
-      }
-
-      if (r.mold && r.mold !== "seco"){
-        extra.push("Humedad:" + labelValue("mold", r.mold));
-      }
-
-      if (r.boxState && r.boxState !== "ok"){
-        extra.push("Caja:" + labelValue("boxState", r.boxState));
-      }
-
-      if (r.shade && r.shade === "sol"){
-        extra.push("Sol directo");
-      }
-
-      if (r.actionTaken && r.actionTaken !== "ninguna"){
-        extra.push("Acción:" + labelValue("actionTaken", r.actionTaken));
-      }
-
-      extra.push(risk.title.replace("Riesgo: ", "Riesgo:"));
-
-      var baseLine = (r.whenLocal || r.whenISO || "");
-      var noteLine = (r.note ? " · " + r.note : "");
-      var extraLine = (extra.length ? " · " + extra.join(" · ") : "");
-
-      metaLine.textContent = baseLine + noteLine + extraLine;
-
+      metaLine.textContent = (row.whenLocal || row.whenISO || "")+(row.note ? " · "+row.note : "")+" · "+extra.join(" · ");
       left.appendChild(title);
       left.appendChild(metaLine);
-
       var tag = document.createElement("div");
-      tag.className = "tag " + (r.synced ? "synced" : "pending");
-      tag.textContent = r.synced ? "SYNC" : "PEND";
-
+      tag.className = "tag "+(row.synced ? "synced" : "pending");
+      tag.textContent = row.synced ? "SYNC" : "PEND";
       div.appendChild(left);
       div.appendChild(tag);
-      elList.appendChild(div);
-    }
-  }
-
-  function saveEntry(){
-    var volunteer = (elVolunteer.value || "").trim();
-    var week = Number(elWeek.value);
-    var school = SCHOOL_NAME;
-    var hive = HIVE_CODE;
-
-    // La fecha y hora se actualizan justo al guardar.
-    var now = new Date();
-    elWhen.value = toDatetimeLocalValue(now);
-    var whenVal = elWhen.value;
-    var tempVal = elTemp.value;
-    var humVal  = elHum.value;
-
-    var soundLevelVal = elSoundLevel.value || "no_medido";
-    var soundValueRaw = (elSoundValue.value || "").trim();
-
-    var waterVal = elWaterStatus.value || "no_medido";
-    var movementVal = elMovementStatus.value || "no_medido";
-
-    var activityVal = elActivity.value || "media";
-    var pestsVal = elPests.value || "ninguna";
-    var moldVal = elMold.value || "seco";
-    var boxVal = elBoxState.value || "ok";
-    var shadeVal = elShade.value || "sombra";
-    var actionVal = elActionTaken.value || "ninguna";
-    var noteVal = (elNote.value || "").trim();
-
-    if (!volunteer){
-      showMsg("Escribe el nombre de la persona que realiza la visita.", false);
-      elVolunteer.focus();
-      return;
-    }
-
-    if (!Number.isInteger(week) || week < 1 || week > 13){
-      showMsg("Selecciona una semana entre 1 y 13.", false);
-      elWeek.focus();
-      return;
-    }
-
-    if (tempVal === "" || humVal === ""){
-      showMsg("Completa temperatura y humedad.", false);
-      return;
-    }
-
-    var temp = Number(tempVal);
-    var hum = Number(humVal);
-
-    if (isNaN(temp) || isNaN(hum)){
-      showMsg("Temperatura o humedad inválida. Revisa los números.", false);
-      return;
-    }
-
-    if (hum < 0 || hum > 100){
-      showMsg("La humedad debe estar entre 0 y 100%.", false);
-      return;
-    }
-
-    var soundValue = null;
-
-    if (soundValueRaw !== ""){
-      soundValue = Number(soundValueRaw);
-
-      if (isNaN(soundValue) || soundValue < 0 || soundValue > 1023){
-        showMsg("El valor del sensor de sonido debe estar entre 0 y 1023.", false);
-        return;
-      }
-    }
-
-    var whenISO = "";
-    var whenLocalText = "";
-
-    try{
-      var d = whenVal ? new Date(whenVal) : new Date();
-      whenISO = d.toISOString();
-      whenLocalText = d.toLocaleString();
-    }catch(e){
-      var dd = new Date();
-      whenISO = dd.toISOString();
-      whenLocalText = dd.toLocaleString();
-    }
-
-    var deviceId = getDeviceId();
-    var id = deviceId + "_" + Date.now() + "_" + Math.random().toString(16).slice(2,8);
-
-    var rowForRisk = {
-      temp: temp,
-      hum: hum,
-      soundLevel: soundLevelVal,
-      soundValue: soundValue,
-      waterStatus: waterVal,
-      movementStatus: movementVal,
-      activity: activityVal,
-      pests: pestsVal,
-      mold: moldVal,
-      boxState: boxVal,
-      shade: shadeVal
-    };
-
-    var risk = assessRisk(rowForRisk);
-
-    var rows = loadAll();
-
-    rows.push({
-      id: id,
-      deviceId: deviceId,
-      volunteer: volunteer,
-      week: week,
-      school: school,
-      hive: hive,
-      whenISO: whenISO,
-      whenLocal: whenLocalText,
-      ts: Date.now(),
-
-      temp: temp,
-      hum: hum,
-
-      soundLevel: soundLevelVal,
-      soundValue: soundValue,
-      waterStatus: waterVal,
-      movementStatus: movementVal,
-
-      activity: activityVal,
-      pests: pestsVal,
-      mold: moldVal,
-      boxState: boxVal,
-      shade: shadeVal,
-      actionTaken: actionVal,
-      note: noteVal,
-
-      risk: risk,
-
-      synced: false,
-      syncedAt: null,
-      attempts: 0,
-      lastError: null
+      $("list").appendChild(div);
     });
-
-    saveAll(rows);
-
-    // Recordar el nombre en este dispositivo para facilitar las siguientes visitas.
+  }
+  function resetReadings(){
+    ["temp", "hum", "soundLevel", "waterStatus", "activity", "mold", "shade", "note", "actionOther",
+      "predatorDescription", "predatorCount", "beesPerMinute"].concat(Object.keys(OPTIONAL_NUMBERS))
+      .forEach(function(id){$(id).value = "";});
+    GROUPS.forEach(function(group){
+      document.querySelectorAll('input[name="'+group+'"]')
+        .forEach(function(input){input.checked = false;});
+      $(group+"Error").textContent = "";
+      $(group).removeAttribute("aria-invalid");
+    });
+    updateOtherFields();
+    updateRiskPreview();
+  }
+  function saveEntry(){
+    updateOtherFields();
+    if (!validateForm()) return;
+    var now = new Date();
+    $("when").value = toDatetimeLocalValue(now);
+    var data = currentData();
+    data.temp = Number(data.temp);
+    data.hum = Number(data.hum);
+    var observer = $("observerName").value.trim().replace(/\s+/g, " ");
+    var week = Number($("week").value);
+    var deviceId = getDeviceId();
+    var row = Object.assign({}, data, {
+      id:deviceId+"_"+now.getTime()+"_"+Math.random().toString(16).slice(2,8),
+      deviceId:deviceId,
+      observerName:observer,
+      week:week,
+      school:SCHOOL_NAME,
+      hive:HIVE_CODE,
+      whenISO:now.toISOString(),
+      whenLocal:now.toLocaleString(),
+      ts:now.getTime(),
+      note:$("note").value.trim(),
+      risk:assessRisk(data),
+      synced:false,
+      syncedAt:null,
+      attempts:0,
+      lastError:null
+    });
+    try{
+      var rows = loadAll();
+      rows.push(row);
+      saveAll(rows);
+    }catch(e){
+      showMsg("No se pudo guardar en este dispositivo. Conserva los datos del formulario e inténtalo de nuevo.", false);
+      return;
+    }
     var meta = loadMeta();
-    meta.lastVolunteer = volunteer;
+    meta.lastObserverName = observer;
     meta.lastWeek = week;
     saveMeta(meta);
-
-    elTemp.value = "";
-    elHum.value  = "";
-    elSoundValue.value = "";
-    elNote.value = "";
-
-    elSoundLevel.value = "no_medido";
-    elWaterStatus.value = "no_medido";
-    elMovementStatus.value = "no_medido";
-    elActivity.value = "media";
-    elPests.value = "ninguna";
-    elMold.value = "seco";
-    elBoxState.value = "ok";
-    elShade.value = "sombra";
-    elActionTaken.value = "ninguna";
-
-    updateRiskPreview();
-
-    showMsg("Registro de " + volunteer + " · Semana " + week + " guardado. Se sincronizará cuando haya internet.", true);
+    resetReadings();
+    showMsg("Registro de "+observer+" · Semana "+week+" guardado. Se sincronizará cuando haya internet.", true);
     render();
     scheduleSyncSoon();
   }
 
+  function buildAirtableRecord(row){
+    var risk = row.risk || assessRisk(row);
+    var observer = observerOf(row);
+    var predators = predatorsOf(row);
+    var boxes = asArray(row.boxState);
+    var actions = asArray(row.actionTaken);
+    var actionOther = actions.indexOf("otro") !== -1 ? (row.actionOther || "") : "";
+    // La copia completa conserva predadores, cantidades, medidas y selecciones múltiples.
+    var notesObj = {
+      client_id:row.id,
+      device_id:row.deviceId,
+      observador:observer,
+      semana:row.week,
+      colegio:row.school,
+      colmena:row.hive,
+      when_iso:row.whenISO,
+      when_local:row.whenLocal,
+      temperatura_c:row.temp,
+      humedad_ambiental_pct:row.hum,
+      sonido_nivel:row.soundLevel || "no_medido",
+      agua_humedad_liquida:row.waterStatus || "no_medido",
+      actividad_entrada:row.activity,
+      predadores_observados:predators.description,
+      numero_de_predadores:predators.count,
+      abejas_ingresando_por_minuto:validCount(row.beesPerMinute) ? Number(row.beesPerMinute) : null,
+      batumen_en_tapa_pct:hasNumber(row.batumenPct) ? Number(row.batumenPct) : null,
+      li_piquera:hasNumber(row.entranceLi) ? Number(row.entranceLi) : null,
+      ls_piquera:hasNumber(row.entranceLs) ? Number(row.entranceLs) : null,
+      ld_piquera:hasNumber(row.entranceLd) ? Number(row.entranceLd) : null,
+      lizq_piquera:hasNumber(row.entranceLizq) ? Number(row.entranceLizq) : null,
+      humedad_visible_moho:row.mold,
+      estado_caja:boxes,
+      sombra_exposicion:row.shade,
+      acciones_realizadas:actions,
+      otra_accion:actionOther,
+      riesgo_nivel:risk.level,
+      riesgo_titulo:risk.title,
+      riesgo_detalle:risk.detail,
+      nota:row.note || ""
+    };
+    if (row.pests) notesObj.plagas_visibles_original = asArray(row.pests);
+    if (row.pestsOther) notesObj.otros_insectos_original = row.pestsOther;
+    var fieldNotes = [row.note || ""];
+    if (actionOther) fieldNotes.push("Otra acción realizada: "+actionOther);
+    var fields = {
+      "Name":"Semana "+row.week+" - "+observer,
+      "Notes":JSON.stringify(notesObj),
+      "Status":AIRTABLE_STATUS_VALUE,
+      "ID de registro":row.id,
+      "Semana":row.week,
+      "Colegio":row.school || SCHOOL_NAME,
+      "Colmena":row.hive || HIVE_CODE,
+      "Fecha y hora":row.whenISO,
+      "Temperatura °C":row.temp,
+      "Humedad ambiental %":row.hum,
+      "Nivel de sonido":labelValue("soundLevel", row.soundLevel || "no_medido"),
+      "Agua detectada":labelValue("waterStatus", row.waterStatus || "no_medido"),
+      "Nivel de riesgo":String(risk.level || "").toUpperCase(),
+      "Detalle del riesgo":risk.detail,
+      "Actividad de entrada":labelValue("activity", row.activity),
+      "Predadores observados":predators.description,
+      "Humedad visible / moho":labelValue("mold", row.mold),
+      "Estado de la caja":airtableOptions("boxState", boxes),
+      "Sombra / exposición":labelValue("shade", row.shade),
+      "Acción realizada":airtableOptions("actionTaken", actions),
+      "Notas de campo":fieldNotes.filter(Boolean).join("\n"),
+      "ID del dispositivo":row.deviceId,
+      "Fecha de sincronización":new Date().toISOString()
+    };
+    // No inventar cantidades en visitas antiguas ni enviar campos opcionales vacíos.
+    if (predators.count !== null) fields["Número de predadores"] = predators.count;
+    if (validCount(row.beesPerMinute)) fields["Número de abejas ingresando por minuto"] = Number(row.beesPerMinute);
+    Object.keys(OPTIONAL_NUMBERS).forEach(function(id){
+      if (hasNumber(row[id])) fields[OPTIONAL_NUMBERS[id]] = Number(row[id]);
+    });
+    fields[AIRTABLE_OBSERVER_FIELD] = observer;
+    return {fields:fields};
+  }
+
   var syncing = false;
   var syncTimer = null;
-
   function scheduleSyncSoon(){
     if (syncTimer) return;
-
-    syncTimer = setTimeout(function(){
-      syncTimer = null;
-      trySync();
-    }, 1200);
+    syncTimer = setTimeout(function(){syncTimer = null;trySync();}, 1200);
   }
-
-  function updateMetaLastSync(text){
-    var meta = loadMeta();
-    meta.lastSyncAt = text;
-    saveMeta(meta);
-  }
-
   function markSynced(ids){
     var rows = loadAll();
-    var now = (new Date()).toLocaleString();
-
-    for (var i=0;i<rows.length;i++){
-      if (!rows[i].synced){
-        for (var j=0;j<ids.length;j++){
-          if (rows[i].id === ids[j]){
-            rows[i].synced = true;
-            rows[i].syncedAt = now;
-            rows[i].lastError = null;
-          }
-        }
+    var now = new Date().toLocaleString();
+    rows.forEach(function(row){
+      if (!row.synced && ids.indexOf(row.id) !== -1){
+        row.synced = true;
+        row.syncedAt = now;
+        row.lastError = null;
       }
-    }
-
-    var cutoff = Date.now() - (30 * 24 * 60 * 60 * 1000);
-    var kept = [];
-
-    for (var k=0;k<rows.length;k++){
-      if (rows[k].synced && rows[k].ts < cutoff){
-        // lectura antigua sincronizada: se limpia del dispositivo
-      } else {
-        kept.push(rows[k]);
-      }
-    }
-
-    saveAll(kept);
-    updateMetaLastSync(now);
+    });
+    var cutoff = Date.now() - 30*24*60*60*1000;
+    saveAll(rows.filter(function(row){return !row.synced || row.ts >= cutoff;}));
+    var meta = loadMeta();
+    meta.lastSyncAt = now;
+    saveMeta(meta);
   }
-
   function markFailed(ids, errorText){
     var rows = loadAll();
-
-    for (var i=0;i<rows.length;i++){
-      for (var j=0;j<ids.length;j++){
-        if (rows[i].id === ids[j]){
-          rows[i].attempts = (rows[i].attempts || 0) + 1;
-          rows[i].lastError = errorText || "Error";
-        }
+    rows.forEach(function(row){
+      if (ids.indexOf(row.id) !== -1){
+        row.attempts = (row.attempts || 0) + 1;
+        row.lastError = errorText || "Error";
       }
-    }
-
+    });
     saveAll(rows);
   }
-
   function pickPendingBatch(limit){
-    var rows = loadAll();
-
-    rows.sort(function(a,b){
-      return (a.ts - b.ts);
-    });
-
-    var out = [];
-
-    for (var i=0;i<rows.length;i++){
-      if (!rows[i].synced){
-        out.push(rows[i]);
-        if (out.length >= limit) break;
-      }
-    }
-
-    return out;
+    return loadAll().filter(function(row){return !row.synced;})
+      .sort(function(a,b){return a.ts - b.ts;}).slice(0,limit);
   }
-
-  function buildAirtableRecord(r){
-    var risk = r.risk || assessRisk(r);
-    var syncedISO = (new Date()).toISOString();
-
-    // Se conserva una copia completa en Notes como respaldo.
-    var notesObj = {
-      client_id: r.id,
-      device_id: r.deviceId,
-      voluntario: r.volunteer,
-      semana: r.week,
-      colegio: r.school,
-      colmena: r.hive,
-      when_iso: r.whenISO,
-      when_local: r.whenLocal,
-      temperatura_c: r.temp,
-      humedad_ambiental_pct: r.hum,
-      sonido_nivel: r.soundLevel || "no_medido",
-      sonido_valor_arduino: r.soundValue,
-      agua_humedad_liquida: r.waterStatus || "no_medido",
-      movimiento_inclinacion: r.movementStatus || "no_medido",
-      actividad_entrada: r.activity || "media",
-      plagas_visibles: r.pests || "ninguna",
-      humedad_visible_moho: r.mold || "seco",
-      estado_caja: r.boxState || "ok",
-      sombra_exposicion: r.shade || "sombra",
-      accion_realizada: r.actionTaken || "ninguna",
-      riesgo_nivel: risk.level,
-      riesgo_titulo: risk.title,
-      riesgo_detalle: risk.detail,
-      nota: r.note || ""
-    };
-
-    var fields = {
-      "Name": "Semana " + r.week + " - " + r.volunteer,
-      "Notes": JSON.stringify(notesObj),
-      "Status": AIRTABLE_STATUS_VALUE,
-      "ID de registro": r.id,
-      "Voluntario": r.volunteer,
-      "Semana": r.week,
-      "Colegio": r.school || SCHOOL_NAME,
-      "Colmena": r.hive || HIVE_CODE,
-      "Fecha y hora": r.whenISO,
-      "Temperatura °C": r.temp,
-      "Humedad ambiental %": r.hum,
-      "Nivel de sonido": labelValue("soundLevel", r.soundLevel || "no_medido"),
-      "Agua detectada": labelValue("waterStatus", r.waterStatus || "no_medido"),
-      "Movimiento de caja": labelValue("movementStatus", r.movementStatus || "no_medido"),
-      "Nivel de riesgo": String(risk.level || "").toUpperCase(),
-      "Detalle del riesgo": risk.detail,
-      "Actividad de entrada": labelValue("activity", r.activity || "media"),
-      "Plagas visibles": labelValue("pests", r.pests || "ninguna"),
-      "Humedad visible / moho": labelValue("mold", r.mold || "seco"),
-      "Estado de la caja": labelValue("boxState", r.boxState || "ok"),
-      "Sombra / exposición": labelValue("shade", r.shade || "sombra"),
-      "Acción realizada": labelValue("actionTaken", r.actionTaken || "ninguna"),
-      "Notas de campo": r.note || "",
-      "ID del dispositivo": r.deviceId,
-      "Fecha de sincronización": syncedISO
-    };
-
-    // El campo numérico se envía solo cuando existe una lectura.
-    if (r.soundValue !== null && r.soundValue !== undefined && r.soundValue !== ""){
-      fields["Valor sensor sonido"] = Number(r.soundValue);
-    }
-
-    return { fields: fields };
-  }
-
   function trySync(){
     if (syncing) return;
-
     setNetUI();
-
-    if (!isOnline()){
-      setSyncTag("SYNC: OFFLINE");
-      return;
-    }
-var batch = pickPendingBatch(10);
-
-    if (!batch.length){
-      setSyncTag("SYNC: OK");
-      return;
-    }
-
+    if (!isOnline()){setSyncTag("SYNC: OFFLINE");return;}
+    var batch;
+    try{batch = pickPendingBatch(10);}
+    catch(e){setSyncTag("SYNC: ERROR");return;}
+    if (!batch.length){setSyncTag("SYNC: OK");return;}
     syncing = true;
     setSyncTag("SYNC: SUBIENDO...");
-    elSave.disabled = true;
-
-    var records = [];
-    var ids = [];
-
-    for (var i=0;i<batch.length;i++){
-      records.push(buildAirtableRecord(batch[i]));
-      ids.push(batch[i].id);
-    }
-    var payload = JSON.stringify({
-      records: records
-    });
-
+    $("saveBtn").disabled = true;
+    var ids = batch.map(function(row){return row.id;});
     fetch("/api/sync", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: payload
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({records:batch.map(buildAirtableRecord)})
     }).then(function(res){
       if (!res.ok){
-        return res.text().then(function(t){
-          throw new Error("HTTP " + res.status + " " + t);
-        });
+        return res.text().then(function(text){throw new Error("HTTP "+res.status+" "+text);});
       }
       return res.json();
     }).then(function(){
@@ -1259,86 +1066,42 @@ var batch = pickPendingBatch(10);
       showMsg("Sincronizado a Airtable.", true);
       setSyncTag("SYNC: OK");
     }).catch(function(err){
-      markFailed(ids, String(err && err.message ? err.message : err));
-      showMsg("No se pudo sincronizar. Se intentará luego.", false);
+      try{markFailed(ids, String(err && err.message ? err.message : err));}catch(e){}
+      showMsg("No se pudo completar la sincronización. Los registros permanecen en este dispositivo.", false);
       setSyncTag("SYNC: ERROR");
     }).finally(function(){
       syncing = false;
-      elSave.disabled = false;
+      $("saveBtn").disabled = false;
       render();
-
-      if (isOnline()){
-        setTimeout(function(){
-          trySync();
-        }, 1500);
-      }
+      if (isOnline()) setTimeout(trySync, 1500);
     });
-  }
-
-  function bindRiskInputs(){
-    var ids = [
-      "temp",
-      "hum",
-      "soundLevel",
-      "soundValue",
-      "waterStatus",
-      "movementStatus",
-      "activity",
-      "pests",
-      "mold",
-      "boxState",
-      "shade"
-    ];
-
-    for (var i=0;i<ids.length;i++){
-      var el = $(ids[i]);
-      if (el){
-        el.addEventListener("input", updateRiskPreview);
-        el.addEventListener("change", updateRiskPreview);
-      }
-    }
   }
 
   function init(){
     var meta = loadMeta();
-
-    elSchool.value = SCHOOL_NAME;
-    elHive.value = HIVE_CODE;
-    elWhen.value = toDatetimeLocalValue(new Date());
-    elVolunteer.value = meta.lastVolunteer || "";
-    elWeek.value = meta.lastWeek ? String(meta.lastWeek) : "";
-
+    $("school").value = SCHOOL_NAME;
+    $("hive").value = HIVE_CODE;
+    $("when").value = toDatetimeLocalValue(new Date());
+    $("observerName").value = meta.lastObserverName || meta.lastVolunteer || "";
+    $("week").value = meta.lastWeek ? String(meta.lastWeek) : "";
     setNetUI();
-
-    window.addEventListener("online", function(){
-      setNetUI();
-      scheduleSyncSoon();
-    });
-
-    window.addEventListener("offline", function(){
-      setNetUI();
-    });
-
-    elSave.addEventListener("click", function(){
-      saveEntry();
-    });
-
-    bindRiskInputs();
+    window.addEventListener("online", function(){setNetUI();scheduleSyncSoon();});
+    window.addEventListener("offline", function(){setNetUI();setSyncTag("SYNC: OFFLINE");});
+    $("visitForm").addEventListener("submit", function(event){event.preventDefault();saveEntry();});
+    GROUPS.forEach(function(group){$(group).addEventListener("change", handleGroupChange);});
+    $("visitForm").addEventListener("input", updateRiskPreview);
+    $("visitForm").addEventListener("change", updateRiskPreview);
+    updateOtherFields();
     updateRiskPreview();
     render();
-
     setInterval(function(){
-      elWhen.value = toDatetimeLocalValue(new Date());
+      $("when").value = toDatetimeLocalValue(new Date());
       if (isOnline()) trySync();
     }, 15000);
-
     scheduleSyncSoon();
-
-    if ("serviceWorker" in navigator){
-      navigator.serviceWorker.register("sw.js").catch(function(){});
-    }
+    // Usa los archivos manifest.json y sw.js de la aplicación existente.
+    if ("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}
   }
-
   init();
 })();
 </script>
