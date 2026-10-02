@@ -311,6 +311,7 @@
 
     .item .riskBadge{display:block;width:fit-content;margin-bottom:8px}
     .riskReason{margin-top:8px;line-height:1.5}
+    .riskAction{margin-top:8px;line-height:1.5;font-weight:600;color:var(--riskText)}
     .riskLegend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px}
     .deleteReading{
       display:block;
@@ -350,6 +351,12 @@
     details.help summary{cursor:pointer;font-size:13px;font-weight:600}
     details.help p, details.help li{font-size:12px;line-height:1.6;color:var(--muted)}
     details.help a{color:#bff8dc}
+    .criteriaTable{width:100%;table-layout:fixed;border-collapse:collapse;margin:12px 0;font-size:12px;line-height:1.5}
+    .criteriaTable caption{text-align:left;font-weight:600;margin-bottom:8px;color:var(--text)}
+    .criteriaTable th,.criteriaTable td{text-align:left;vertical-align:top;padding:8px 5px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+    .criteriaTable thead th{color:var(--text)}
+    .criteriaTable th:first-child{width:30%}
+    .criteriaTable td{color:var(--muted)}
     .contextHint{margin-top:6px}
     .item>div:first-child{min-width:0;overflow-wrap:anywhere}
     @media (max-width:380px){header{flex-wrap:wrap}.kpi{gap:6px}}
@@ -675,24 +682,41 @@
             <div class="sectionTitle">Semáforo de la colmena · Prioridad de revisión</div>
             <div class="riskBadge risk-pendiente" id="riskTitle">⚪ ESPERA</div>
             <div class="small riskReason" id="riskDetail">Completa las lecturas y el chequeo visual.</div>
+            <div class="small riskAction" id="riskAction">Completa las observaciones y confirma dónde se mide cada lectura.</div>
             <div class="small riskLegend" aria-label="Significado de los colores">
               <span>⚪ ESPERA</span><span>🟢 NORMAL</span><span>🟡 REVISAR</span><span>🔴 ALERTA</span>
             </div>
-            <div class="small" style="margin-top:8px">Criterios provisionales para esta visita. NORMAL significa «sin señales de alerta observadas»; no certifica la salud de la colonia.</div>
+            <div class="small" style="margin-top:8px">Evaluación orientativa · <i>Melipona eburnea</i> · Manacamiri. Validación local pendiente. NORMAL significa «sin señales de alerta observadas»; no certifica la salud de la colonia.</div>
             <details class="help">
               <summary>Criterios y fuentes del semáforo</summary>
               <p>🔴 ALERTA: ataque que afecta al nido, agua que compromete la cría o los potes / inunda el nido, o daño que lo deja expuesto. Avisar al responsable.</p>
               <p>🟡 REVISAR: observaciones que necesitan comprobación, cambios respecto a visitas comparables o falta de referencia local. Un predador cercano o sonido alto no activa rojo por sí solo.</p>
               <p>🟢 NORMAL: registro suficiente, sin señales de alerta observadas. ⚪ ESPERA: faltan datos esenciales o su origen no está confirmado.</p>
-              <p>Sólo para una sonda cerca de la cría, se usa como referencia descriptiva el intervalo observado de 21,3–34,6 °C en dos nidos de Acre. Fuera de él se solicita revisión. No es un intervalo óptimo ni un límite sanitario validado para Manacamiri. Otras posiciones se registran para comparación local.</p>
-              <p>No hay un corte automático de humedad para rojo: se ha observado actividad intensa con humedad ambiental cercana al 90 %. Abejas por minuto, hora y lluvia se interpretan en conjunto, sin un mínimo universal.</p>
+              <table class="criteriaTable">
+                <caption>Parámetros de esta versión</caption>
+                <thead><tr><th scope="col">Dato observado</th><th scope="col">Prioridad de revisión</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">Temperatura</th><td><span id="temperatureCriterion">Sólo cerca de la cría: menos de 21,3 o más de 34,6 °C → REVISAR y repetir la lectura.</span> Son extremos observados en dos nidos de Acre. No es un intervalo óptimo ni un límite sanitario validado para Manacamiri. No se aplica a una sonda bajo la tapa u otra posición.</td></tr>
+                  <tr><th scope="row">Humedad (%)</th><td>Sin corte sanitario automático por porcentaje. Registra si corresponde al ambiente exterior o al interior. Un cambio llamativo respecto a visitas comparables o la falta de referencia local → REVISAR. Un extremo del rango del equipo pide corroboración.</td></tr>
+                  <tr><th scope="row">Abejas por minuto</th><td>0 ingresos durante 60 segundos, o actividad baja → REVISAR y repetir considerando hora, lluvia y la misma colmena. No hay un mínimo universal ni una alerta roja automática por este conteo.</td></tr>
+                  <tr><th scope="row">Predadores</th><td>Presencia sin ataque observado → REVISAR. Ataque o invasión que afecta al nido → ALERTA.</td></tr>
+                  <tr><th scope="row">Agua y moho</th><td>Agua, humedad visible o moho → REVISAR. Agua que compromete la cría o los potes, o inunda el nido → ALERTA.</td></tr>
+                  <tr><th scope="row">Caja y sombra</th><td>Grietas, filtración, inclinación o sol directo → REVISAR. Daño de caja o tapa que deja el nido expuesto → ALERTA.</td></tr>
+                  <tr><th scope="row">Sonido</th><td>Sonido alto → REVISAR su origen. La observación es cualitativa; no diagnostica una enfermedad.</td></tr>
+                  <tr><th scope="row">Batumen y piquera</th><td>Mediciones opcionales para seguimiento. No tienen umbrales numéricos de color en esta versión.</td></tr>
+                  <tr><th scope="row">Datos incompletos</th><td>ESPERA si faltan datos esenciales o son inválidos. Una amenaza directa observada mantiene ALERTA. Con los campos completos, una observación «Sin confirmar» produce ESPERA, salvo que otra señal conocida requiera REVISAR; se informa lo que falta confirmar.</td></tr>
+                </tbody>
+              </table>
+              <p>La pantalla queda afuera y la sonda con cable mide la temperatura interna. No atribuyas humedad interna a ese cable sin confirmación del manual o del fabricante. Las especificaciones anunciadas (±1 °C y ±5 puntos porcentuales de humedad relativa) requieren comprobación; una lectura próxima al extremo de la referencia térmica debe repetirse.</p>
+              <p>Los estudios siguientes tratan sobre <i>Melipona eburnea</i>. Describen temperatura, humedad y actividad; no validaron los colores de esta aplicación. La clasificación de amenazas es una propuesta operativa para avisar al responsable.</p>
               <ul>
-                <li><a href="https://repositorio.concytec.gob.pe/handle/20.500.12390/1397" target="_blank" rel="noopener noreferrer">IIAP: manual de crianza (2019)</a></li>
                 <li><a href="https://doi.org/10.12741/ebrasilis.v10i2.705" target="_blank" rel="noopener noreferrer">Correia y colaboradores: termorregulación (2017)</a></li>
+                <li><a href="https://dialnet.unirioja.es/descarga/articulo/8658067.pdf" target="_blank" rel="noopener noreferrer">Solarte, Talero y Sánchez: temperatura y humedad dentro de la colmena</a></li>
                 <li><a href="https://www.revistas.unipar.br/index.php/veterinaria/article/view/5816" target="_blank" rel="noopener noreferrer">Correia y colaboradores: actividad de vuelo (2017)</a></li>
                 <li><a href="https://doi.org/10.25100/socolen.v37i1.9055" target="_blank" rel="noopener noreferrer">Nates-Parra y Rodríguez: forrajeo (2011)</a></li>
               </ul>
-              <p>Los colores son una propuesta de revisión basada en estas fuentes; requieren evaluación local con un especialista. La referencia térmica debe ajustarse o retirarse si esa evaluación lo determina.</p>
+              <p>Guía complementaria de manejo: <a href="https://repositorio.concytec.gob.pe/handle/20.500.12390/1397" target="_blank" rel="noopener noreferrer">IIAP: manual de crianza (2019)</a>.</p>
+              <p>Revisión de fuentes: 2 de octubre de 2026. Para validar el semáforo en Manacamiri, reúne visitas comparables y contrasta sus colores con una evaluación independiente de un especialista. La referencia térmica debe ajustarse o retirarse si esa evaluación lo determina. Los parámetros y la mascota están incluidos en esta app; abrir las publicaciones requiere internet.</p>
             </details>
           </div>
           <div style="margin-top:12px">
@@ -746,15 +770,17 @@
   // Método de prioridad de revisión, aún pendiente de validación en Manacamiri.
   // Los colores son una propuesta operativa; las publicaciones no validaron este algoritmo.
   var RISK_PROTOCOL = {
-    version:"melipona_eburnea_manacamiri_2026_10_01_v1",
+    version:"melipona_eburnea_manacamiri_2026_10_02_v2",
     status:"provisional_pendiente_validacion_local",
+    evidenceReviewedOn:"2026-10-02",
     species:"Melipona eburnea",
     site:"Manacamiri, Maynas, Loreto, Perú",
     sources:[
       "https://repositorio.concytec.gob.pe/handle/20.500.12390/1397",
       "https://doi.org/10.12741/ebrasilis.v10i2.705",
       "https://www.revistas.unipar.br/index.php/veterinaria/article/view/5816",
-      "https://doi.org/10.25100/socolen.v37i1.9055"
+      "https://doi.org/10.25100/socolen.v37i1.9055",
+      "https://dialnet.unirioja.es/descarga/articulo/8658067.pdf"
     ]
   };
   // Extremos OBSERVADOS en dos nidos de Acre, con sensores cerca de la cría.
@@ -771,11 +797,22 @@
   };
   // Colores y texto accesible: el estado se entiende sin distinguir los colores.
   var TRAFFIC_LIGHTS = {
-    normal:{css:"risk-normal", label:"🟢 NORMAL"},
-    revisar:{css:"risk-revisar", label:"🟡 REVISAR"},
-    alerta:{css:"risk-alerta", label:"🔴 ALERTA"},
-    pendiente:{css:"risk-pendiente", label:"⚪ ESPERA"}
+    normal:{css:"risk-normal", label:"🟢 NORMAL", action:"Continúa el seguimiento y guarda esta visita."},
+    revisar:{css:"risk-revisar", label:"🟡 REVISAR", action:"Repite o confirma las observaciones indicadas y consulta al responsable."},
+    alerta:{css:"risk-alerta", label:"🔴 ALERTA", action:"Avisa al responsable cuanto antes por la amenaza observada."},
+    pendiente:{css:"risk-pendiente", label:"⚪ ESPERA", action:"Completa las observaciones y confirma dónde se mide cada lectura."}
   };
+  function referenceTemperature(value){
+    return Number(value).toFixed(1).replace(".", ",");
+  }
+  function temperatureReferenceText(){
+    return referenceTemperature(TEMPERATURE_REFERENCE.min)+"–"+referenceTemperature(TEMPERATURE_REFERENCE.max)+" °C";
+  }
+  function updateParameterHelp(){
+    $("temperatureCriterion").textContent = "Sólo cerca de la cría: menos de "+
+      referenceTemperature(TEMPERATURE_REFERENCE.min)+" o más de "+referenceTemperature(TEMPERATURE_REFERENCE.max)+
+      " °C → REVISAR y repetir la lectura.";
+  }
   var GROUPS = ["boxState", "actionTaken"];
   var EXCLUSIVE = {boxState:"ok", actionTaken:"ninguna"};
   var OPTIONAL_NUMBERS = {
@@ -1059,11 +1096,12 @@
     var temp = data.temp === "" || data.temp === null || data.temp === undefined ? NaN : Number(data.temp);
     var hasPredators = validCount(data.predatorCount) && Number(data.predatorCount) > 0;
     var boxes = asArray(data.boxState);
+    var temperatureReferenceApplied = false;
     function result(level, detail){
       return {
         level:level,title:"Prioridad: "+level.toUpperCase(),detail:detail,
         version:RISK_PROTOCOL.version,status:RISK_PROTOCOL.status,
-        temperatureReferenceApplied:data.tempProbePosition === TEMPERATURE_REFERENCE.position && Number.isFinite(temp),
+        temperatureReferenceApplied:temperatureReferenceApplied,
         humidityNumericThresholdApplied:false
       };
     }
@@ -1098,9 +1136,11 @@
     if (data.rain === "no_obs") unknown.push("lluvia durante el conteo");
     if (data.nestExposure === "no_obs") unknown.push("protección del nido");
     var checks = [];
-    if (data.tempProbePosition === TEMPERATURE_REFERENCE.position &&
-      (temp < TEMPERATURE_REFERENCE.min || temp > TEMPERATURE_REFERENCE.max)){
-      checks.push("temperatura cerca de la cría fuera de la referencia descriptiva de Acre (21,3–34,6 °C); repetir la lectura y consultar al responsable. Esa referencia no es un límite de salud validado en Manacamiri");
+    if (data.tempProbePosition === TEMPERATURE_REFERENCE.position){
+      temperatureReferenceApplied = true;
+      if (temp < TEMPERATURE_REFERENCE.min || temp > TEMPERATURE_REFERENCE.max){
+        checks.push("temperatura cerca de la cría fuera de la referencia descriptiva de Acre ("+temperatureReferenceText()+"); repetir la lectura y consultar al responsable. Esa referencia no es un límite de salud validado en Manacamiri");
+      }
     }
     if (temp === INSTRUMENT.temperatureRange.min || temp === INSTRUMENT.temperatureRange.max ||
       hum === INSTRUMENT.humidityRange.min || hum === INSTRUMENT.humidityRange.max){
@@ -1144,11 +1184,13 @@
   }
   function updateRiskPreview(){
     updateOtherFields();
+    updateParameterHelp();
     var risk = assessRisk(currentData());
     var light = trafficLight(risk);
     $("riskBox").className = "riskBox "+light.css;
     $("riskTitle").textContent = light.label;
     $("riskDetail").textContent = risk.detail;
+    $("riskAction").textContent = light.action;
     $("riskTitle").className = "riskBadge "+light.css;
     $("colmenaMascot").setAttribute("aria-label", "Mascota de Arca Beta: "+light.label);
   }
@@ -1300,7 +1342,13 @@
       note:$("note").value.trim(),
       risk:assessRisk(data),
       riskVersion:RISK_PROTOCOL.version,
-      riskMethod:{version:RISK_PROTOCOL.version,status:RISK_PROTOCOL.status,species:RISK_PROTOCOL.species,site:RISK_PROTOCOL.site,sources:RISK_PROTOCOL.sources.slice()},
+      riskMethod:{
+        version:RISK_PROTOCOL.version,status:RISK_PROTOCOL.status,
+        evidenceReviewedOn:RISK_PROTOCOL.evidenceReviewedOn,
+        species:RISK_PROTOCOL.species,site:RISK_PROTOCOL.site,
+        temperatureReference:JSON.parse(JSON.stringify(TEMPERATURE_REFERENCE)),
+        sources:RISK_PROTOCOL.sources.slice()
+      },
       synced:false,
       syncedAt:null,
       attempts:0,
