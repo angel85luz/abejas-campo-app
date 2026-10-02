@@ -347,16 +347,6 @@
     .choice:focus-within{outline:2px solid var(--primary);outline-offset:2px}
     .groupError{color:#ffb3b3;font-size:12px;margin:6px 0 0;min-height:16px}
     .requiredNote{margin:0 0 14px}
-    details.help{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-    details.help summary{cursor:pointer;font-size:13px;font-weight:600}
-    details.help p, details.help li{font-size:12px;line-height:1.6;color:var(--muted)}
-    details.help a{color:#bff8dc}
-    .criteriaTable{width:100%;table-layout:fixed;border-collapse:collapse;margin:12px 0;font-size:12px;line-height:1.5}
-    .criteriaTable caption{text-align:left;font-weight:600;margin-bottom:8px;color:var(--text)}
-    .criteriaTable th,.criteriaTable td{text-align:left;vertical-align:top;padding:8px 5px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
-    .criteriaTable thead th{color:var(--text)}
-    .criteriaTable th:first-child{width:30%}
-    .criteriaTable td{color:var(--muted)}
     .contextHint{margin-top:6px}
     .item>div:first-child{min-width:0;overflow-wrap:anywhere}
     @media (max-width:380px){header{flex-wrap:wrap}.kpi{gap:6px}}
@@ -399,8 +389,8 @@
         <div class="brandText">
           <h1>Registro de visita (campo)</h1>
           <div class="sub">
-            Melipona eburnea · Loreto.
-      
+            Melipona eburnea · Manacamiri, Maynas, Loreto.
+            <br>Lee el termohigrómetro y registra los valores y las observaciones.
             <br>La app funciona offline y sincroniza cuando vuelve internet.
           </div>
         </div>
@@ -439,16 +429,6 @@
 
           <div style="margin-top:14px" class="sectionTitle">Lecturas</div>
           <div class="small">Pantalla afuera · Sonda de temperatura dentro de la colmena.</div>
-          <details class="help">
-            <summary>Cómo usar el termohigrómetro</summary>
-            <ol>
-              <li>El responsable instala la sonda en una posición fija y deja la pantalla afuera, protegida del sol directo y de la lluvia. Cada visita se lee desde afuera.</li>
-              <li>Lee la temperatura de la sonda con cable, identificada en el manual como sensor exterior. En esta instalación corresponde al interior de la colmena.</li>
-              <li>Confirma dónde está el sensor de humedad. La publicación del B0151 nc sólo documenta temperatura en la sonda. Si aún no lo sabes, selecciona «Sin confirmar».</li>
-              <li>Registra la lectura actual y espera a que se estabilice según el manual. MAX/MIN muestra extremos anteriores, no la lectura actual.</li>
-            </ol>
-            <p>Especificaciones anunciadas por el vendedor: temperatura de sonda −40 a 70 °C, precisión ±1 °C; humedad 10 a 99 %, precisión ±5 % HR. No se ha comprobado su calibración. Los valores se ingresan manualmente.</p>
-          </details>
           <div class="row2">
             <div>
               <label for="temp">Temperatura (°C)</label>
@@ -458,44 +438,8 @@
             <div>
               <label for="hum">Humedad ambiental (%)</label>
               <input id="hum" name="hum" type="number" required step="1" min="10" max="99" inputmode="numeric" placeholder="Ej: 88" aria-describedby="humHint">
-              <div id="humHint" class="small contextHint">Copia la humedad del equipo y señala dónde se mide. No presupongas que el cable también mide humedad.</div>
+              <div id="humHint" class="small contextHint">Humedad ambiental: copia la lectura del aparato instalado afuera de la caja.</div>
             </div>
-          </div>
-          <div class="row2" style="margin-top:12px">
-            <div>
-              <label for="tempProbePosition">Ubicación de la sonda dentro de la caja</label>
-              <select id="tempProbePosition" name="tempProbePosition" required>
-                <option value="">Seleccionar ubicación</option>
-                <option value="cerca_cria">Cerca de la cría</option>
-                <option value="bajo_tapa">Debajo de la tapa</option>
-                <option value="otra">Otra ubicación</option>
-                <option value="sin_confirmar">Sin confirmar</option>
-              </select>
-              <div id="tempProbeOtherWrap" hidden style="margin-top:8px">
-                <label for="tempProbeOther">Describe la otra ubicación de la sonda</label>
-                <input id="tempProbeOther" name="tempProbeOther" type="text" disabled placeholder="Ej: pared lateral del compartimento superior">
-              </div>
-            </div>
-            <div>
-              <label for="humidityLocation">Lugar donde se mide la humedad</label>
-              <select id="humidityLocation" name="humidityLocation" required>
-                <option value="">Seleccionar lugar</option>
-                <option value="externa_pantalla">Afuera, en el aparato (confirmado)</option>
-                <option value="interna_sonda">Dentro, en la sonda (confirmado)</option>
-                <option value="sin_confirmar">Sin confirmar</option>
-              </select>
-              <div class="small contextHint">Selecciona «Dentro» sólo si el manual o el fabricante confirma humedad en la sonda.</div>
-            </div>
-          </div>
-          <div style="margin-top:12px">
-            <label for="readingComparison">Lecturas frente a visitas comparables</label>
-            <select id="readingComparison" name="readingComparison" required aria-describedby="comparisonHint">
-              <option value="">Seleccionar comparación</option>
-              <option value="estable">Sin cambio llamativo observado</option>
-              <option value="cambio">Cambio llamativo: requiere revisión</option>
-              <option value="sin_referencia">No hay una referencia comparable</option>
-            </select>
-            <div id="comparisonHint" class="small contextHint">Compara la misma colmena, posición de sonda, hora y condiciones similares. Si no tienes esas lecturas, elige «No hay una referencia comparable». Esta comparación no diagnostica la salud.</div>
           </div>
           <div class="row2" style="margin-top:12px">
             <div>
@@ -604,16 +548,6 @@
               <div class="groupError" id="boxStateError" aria-live="polite"></div>
             </fieldset>
           </div>
-          <div style="margin-top:12px">
-            <label for="nestExposure">Nido expuesto por daño de la caja o de la tapa</label>
-            <select id="nestExposure" name="nestExposure" required>
-              <option value="">Seleccionar observación</option>
-              <option value="no">No se observa el nido expuesto</option>
-              <option value="si">Sí, el daño deja el nido expuesto</option>
-              <option value="no_obs">No se pudo verificar</option>
-            </select>
-            <div class="small contextHint">Observa desde afuera. Este registro no exige abrir la colmena. Una grieta superficial no equivale a un nido expuesto.</div>
-          </div>
 
           <div class="row2" style="margin-top:12px">
             <div>
@@ -682,42 +616,11 @@
             <div class="sectionTitle">Semáforo de la colmena · Prioridad de revisión</div>
             <div class="riskBadge risk-pendiente" id="riskTitle">⚪ ESPERA</div>
             <div class="small riskReason" id="riskDetail">Completa las lecturas y el chequeo visual.</div>
-            <div class="small riskAction" id="riskAction">Completa las observaciones y confirma dónde se mide cada lectura.</div>
+            <div class="small riskAction" id="riskAction">Completa las lecturas y el chequeo visual de esta visita.</div>
             <div class="small riskLegend" aria-label="Significado de los colores">
               <span>⚪ ESPERA</span><span>🟢 NORMAL</span><span>🟡 REVISAR</span><span>🔴 ALERTA</span>
             </div>
-            <div class="small" style="margin-top:8px">Evaluación orientativa · <i>Melipona eburnea</i> · Manacamiri. Validación local pendiente. NORMAL significa «sin señales de alerta observadas»; no certifica la salud de la colonia.</div>
-            <details class="help">
-              <summary>Criterios y fuentes del semáforo</summary>
-              <p>🔴 ALERTA: ataque que afecta al nido, agua que compromete la cría o los potes / inunda el nido, o daño que lo deja expuesto. Avisar al responsable.</p>
-              <p>🟡 REVISAR: observaciones que necesitan comprobación, cambios respecto a visitas comparables o falta de referencia local. Un predador cercano o sonido alto no activa rojo por sí solo.</p>
-              <p>🟢 NORMAL: registro suficiente, sin señales de alerta observadas. ⚪ ESPERA: faltan datos esenciales o su origen no está confirmado.</p>
-              <table class="criteriaTable">
-                <caption>Parámetros de esta versión</caption>
-                <thead><tr><th scope="col">Dato observado</th><th scope="col">Prioridad de revisión</th></tr></thead>
-                <tbody>
-                  <tr><th scope="row">Temperatura</th><td><span id="temperatureCriterion">Sólo cerca de la cría: menos de 21,3 o más de 34,6 °C → REVISAR y repetir la lectura.</span> Son extremos observados en dos nidos de Acre. No es un intervalo óptimo ni un límite sanitario validado para Manacamiri. No se aplica a una sonda bajo la tapa u otra posición.</td></tr>
-                  <tr><th scope="row">Humedad (%)</th><td>Sin corte sanitario automático por porcentaje. Registra si corresponde al ambiente exterior o al interior. Un cambio llamativo respecto a visitas comparables o la falta de referencia local → REVISAR. Un extremo del rango del equipo pide corroboración.</td></tr>
-                  <tr><th scope="row">Abejas por minuto</th><td>0 ingresos durante 60 segundos, o actividad baja → REVISAR y repetir considerando hora, lluvia y la misma colmena. No hay un mínimo universal ni una alerta roja automática por este conteo.</td></tr>
-                  <tr><th scope="row">Predadores</th><td>Presencia sin ataque observado → REVISAR. Ataque o invasión que afecta al nido → ALERTA.</td></tr>
-                  <tr><th scope="row">Agua y moho</th><td>Agua, humedad visible o moho → REVISAR. Agua que compromete la cría o los potes, o inunda el nido → ALERTA.</td></tr>
-                  <tr><th scope="row">Caja y sombra</th><td>Grietas, filtración, inclinación o sol directo → REVISAR. Daño de caja o tapa que deja el nido expuesto → ALERTA.</td></tr>
-                  <tr><th scope="row">Sonido</th><td>Sonido alto → REVISAR su origen. La observación es cualitativa; no diagnostica una enfermedad.</td></tr>
-                  <tr><th scope="row">Batumen y piquera</th><td>Mediciones opcionales para seguimiento. No tienen umbrales numéricos de color en esta versión.</td></tr>
-                  <tr><th scope="row">Datos incompletos</th><td>ESPERA si faltan datos esenciales o son inválidos. Una amenaza directa observada mantiene ALERTA. Con los campos completos, una observación «Sin confirmar» produce ESPERA, salvo que otra señal conocida requiera REVISAR; se informa lo que falta confirmar.</td></tr>
-                </tbody>
-              </table>
-              <p>La pantalla queda afuera y la sonda con cable mide la temperatura interna. No atribuyas humedad interna a ese cable sin confirmación del manual o del fabricante. Las especificaciones anunciadas (±1 °C y ±5 puntos porcentuales de humedad relativa) requieren comprobación; una lectura próxima al extremo de la referencia térmica debe repetirse.</p>
-              <p>Los estudios siguientes tratan sobre <i>Melipona eburnea</i>. Describen temperatura, humedad y actividad; no validaron los colores de esta aplicación. La clasificación de amenazas es una propuesta operativa para avisar al responsable.</p>
-              <ul>
-                <li><a href="https://doi.org/10.12741/ebrasilis.v10i2.705" target="_blank" rel="noopener noreferrer">Correia y colaboradores: termorregulación (2017)</a></li>
-                <li><a href="https://dialnet.unirioja.es/descarga/articulo/8658067.pdf" target="_blank" rel="noopener noreferrer">Solarte, Talero y Sánchez: temperatura y humedad dentro de la colmena</a></li>
-                <li><a href="https://www.revistas.unipar.br/index.php/veterinaria/article/view/5816" target="_blank" rel="noopener noreferrer">Correia y colaboradores: actividad de vuelo (2017)</a></li>
-                <li><a href="https://doi.org/10.25100/socolen.v37i1.9055" target="_blank" rel="noopener noreferrer">Nates-Parra y Rodríguez: forrajeo (2011)</a></li>
-              </ul>
-              <p>Guía complementaria de manejo: <a href="https://repositorio.concytec.gob.pe/handle/20.500.12390/1397" target="_blank" rel="noopener noreferrer">IIAP: manual de crianza (2019)</a>.</p>
-              <p>Revisión de fuentes: 2 de octubre de 2026. Para validar el semáforo en Manacamiri, reúne visitas comparables y contrasta sus colores con una evaluación independiente de un especialista. La referencia térmica debe ajustarse o retirarse si esa evaluación lo determina. Los parámetros y la mascota están incluidos en esta app; abrir las publicaciones requiere internet.</p>
-            </details>
+            <div class="small" style="margin-top:8px">Evaluación orientativa · <i>Melipona eburnea</i> · Manacamiri. El color indica la prioridad de revisión por las señales observadas; no certifica la salud. Temperatura y humedad se registran sin límites sanitarios automáticos.</div>
           </div>
           <div style="margin-top:12px">
             <button class="btn" id="saveBtn" type="submit">Guardar lectura</button>
@@ -770,8 +673,9 @@
   // Método de prioridad de revisión, aún pendiente de validación en Manacamiri.
   // Los colores son una propuesta operativa; las publicaciones no validaron este algoritmo.
   var RISK_PROTOCOL = {
-    version:"melipona_eburnea_manacamiri_2026_10_02_v2",
+    version:"melipona_eburnea_manacamiri_2026_10_02_v3_simplificado",
     status:"provisional_pendiente_validacion_local",
+    scope:"prioridad_por_senales_observadas_sin_diagnostico_termohigrometrico",
     evidenceReviewedOn:"2026-10-02",
     species:"Melipona eburnea",
     site:"Manacamiri, Maynas, Loreto, Perú",
@@ -780,13 +684,31 @@
       "https://doi.org/10.12741/ebrasilis.v10i2.705",
       "https://www.revistas.unipar.br/index.php/veterinaria/article/view/5816",
       "https://doi.org/10.25100/socolen.v37i1.9055",
-      "https://dialnet.unirioja.es/descarga/articulo/8658067.pdf"
+      "https://doi.org/10.36436/24223484.185"
     ]
   };
-  // Extremos OBSERVADOS en dos nidos de Acre, con sensores cerca de la cría.
-  // Referencia descriptiva para solicitar REVISAR, NO intervalo óptimo ni límite de daño.
-  // No se aplica a una sonda bajo la tapa ni a otra posición no comparable.
-  var TEMPERATURE_REFERENCE = {min:21.3,max:34.6,position:"cerca_cria",colonies:2};
+  // Correia et al. (2017), doi:10.12741/ebrasilis.v10i2.705:
+  // extremos observados en DOS nidos, con sensores en la región de los discos de cría.
+  // NO constituyen un rango de salud ni un umbral sanitario validado para Manacamiri.
+  // Se conserva la referencia documental, sin aplicarla al color: el formulario
+  // simplificado ya no registra la posición exacta de la sonda.
+  var TEMPERATURE_REFERENCE = {
+    min:21.3,max:34.6,position:"cerca_cria",colonies:2,
+    applied:false,reason:"posicion_exacta_de_sonda_no_registrada_no_rango_sanitario"
+  };
+  // Configuración solicitada: pantalla afuera y sonda de TEMPERATURA adentro.
+  // No equivale a confirmar que la sonda mida humedad o que esté cerca de la cría.
+  var MEASUREMENT_SETUP = {
+    temperatureSource:"interior_sonda",
+    temperaturePosition:"no_registrada",
+    humiditySource:"ambiente_exterior_aparato",
+    basis:"configuracion_pantalla_afuera_sonda_temperatura_dentro"
+  };
+  // Solarte, Talero y Sánchez, doi:10.36436/24223484.185: humedad interna
+  // y humedad exterior son mediciones distintas. No calcular condensación del nido
+  // mezclando temperatura interna con humedad del aparato instalado afuera.
+  // Los valores ambientales del estudio de vuelo (doi:10.25110/arqvet.v20i2.5816)
+  // no se trasladan como límites sanitarios a la sonda de temperatura interna.
   var INSTRUMENT = {
     brand:"Tempo Real",model:"B0151 nc",
     configuration:"pantalla_afuera_sonda_temperatura_dentro",
@@ -800,19 +722,8 @@
     normal:{css:"risk-normal", label:"🟢 NORMAL", action:"Continúa el seguimiento y guarda esta visita."},
     revisar:{css:"risk-revisar", label:"🟡 REVISAR", action:"Repite o confirma las observaciones indicadas y consulta al responsable."},
     alerta:{css:"risk-alerta", label:"🔴 ALERTA", action:"Avisa al responsable cuanto antes por la amenaza observada."},
-    pendiente:{css:"risk-pendiente", label:"⚪ ESPERA", action:"Completa las observaciones y confirma dónde se mide cada lectura."}
+    pendiente:{css:"risk-pendiente", label:"⚪ ESPERA", action:"Completa las lecturas y el chequeo visual de esta visita."}
   };
-  function referenceTemperature(value){
-    return Number(value).toFixed(1).replace(".", ",");
-  }
-  function temperatureReferenceText(){
-    return referenceTemperature(TEMPERATURE_REFERENCE.min)+"–"+referenceTemperature(TEMPERATURE_REFERENCE.max)+" °C";
-  }
-  function updateParameterHelp(){
-    $("temperatureCriterion").textContent = "Sólo cerca de la cría: menos de "+
-      referenceTemperature(TEMPERATURE_REFERENCE.min)+" o más de "+referenceTemperature(TEMPERATURE_REFERENCE.max)+
-      " °C → REVISAR y repetir la lectura.";
-  }
   var GROUPS = ["boxState", "actionTaken"];
   var EXCLUSIVE = {boxState:"ok", actionTaken:"ninguna"};
   var OPTIONAL_NUMBERS = {
@@ -828,11 +739,7 @@
     activity:"Actividad en la entrada",
     mold:"Humedad visible / moho",
     shade:"Sombra / exposición",
-    tempProbePosition:"Ubicación de la sonda dentro de la caja",
-    humidityLocation:"Lugar donde se mide la humedad",
-    readingComparison:"Lecturas frente a visitas comparables",
-    rain:"Lluvia durante la observación",
-    nestExposure:"Nido expuesto por daño de la caja o de la tapa"
+    rain:"Lluvia durante la observación"
   };
   var MAPS = {
     soundLevel:{no_medido:"No medido", bajo:"Bajo", medio:"Medio", alto:"Alto"},
@@ -843,13 +750,9 @@
     boxState:{ok:"OK", grietas:"Grietas / huecos", techo:"Techo con filtración", inclinada:"Caja inclinada"},
     shade:{sombra:"Sombra", parcial:"Parcial", sol:"Sol directo"},
     actionTaken:{ninguna:"Ninguna", limpieza:"Limpieza", barrera_hormigas:"Barrera anti-hormigas", reparar_techo:"Reparar techo", mover_sombra:"Mover a sombra", otro:"Otro"},
-    tempProbePosition:{cerca_cria:"Cerca de la cría",bajo_tapa:"Debajo de la tapa",otra:"Otra ubicación",sin_confirmar:"Sin confirmar"},
-    humidityLocation:{externa_pantalla:"Exterior: sensor en el aparato (confirmado)",interna_sonda:"Interior: sensor en la sonda (confirmado)",sin_confirmar:"Ubicación sin confirmar"},
-    readingComparison:{estable:"Sin cambio llamativo observado",cambio:"Cambio llamativo: requiere revisión",sin_referencia:"Sin referencia comparable"},
     rain:{no:"Sin lluvia",si:"Con lluvia",no_obs:"No observado"},
     predatorContext:{sin_predadores:"Sin predadores reportados",exterior:"Cerca / afuera, sin ataque observado",interior:"Dentro, sin ataque observado",ataque:"Ataque o invasión que afecta al nido",sin_confirmar:"Ubicación o comportamiento sin confirmar"},
-    waterContext:{sin_agua:"No se reportó agua",sin_determinar:"No medido",exterior:"Sólo en el exterior",interior:"Dentro, sin daño observado",afecta_nido:"Agua que afecta la cría o los potes / inunda el nido",sin_confirmar:"Ubicación y efecto sin confirmar"},
-    nestExposure:{no:"No se observa el nido expuesto",si:"El daño deja el nido expuesto",no_obs:"No se pudo verificar"}
+    waterContext:{sin_agua:"No se reportó agua",sin_determinar:"No medido",exterior:"Sólo en el exterior",interior:"Dentro, sin daño observado",afecta_nido:"Agua que afecta la cría o los potes / inunda el nido",sin_confirmar:"Ubicación y efecto sin confirmar"}
   };
 
   function $(id){return document.getElementById(id);}
@@ -951,10 +854,6 @@
     $("actionOtherWrap").hidden = !actionOther;
     $("actionOther").disabled = !actionOther;
     $("actionOther").required = actionOther;
-    var probeOther = $("tempProbePosition").value === "otra";
-    $("tempProbeOtherWrap").hidden = !probeOther;
-    $("tempProbeOther").disabled = !probeOther;
-    $("tempProbeOther").required = probeOther;
     var count = inputNumber("predatorCount");
     var predatorDetails = validCount(count) && count > 0;
     $("predatorContextWrap").hidden = !predatorDetails;
@@ -1009,9 +908,6 @@
         return validationError($(id), "Completa el campo «"+SELECT_LABELS[id]+"».");
       }
     }
-    if ($("tempProbePosition").value === "otra" && !$("tempProbeOther").value.trim()){
-      return validationError($("tempProbeOther"), "Describe la ubicación de la sonda dentro de la caja.");
-    }
     if (!$("predatorDescription").value.trim()){
       return validationError($("predatorDescription"), "Escribe los predadores observados. Si no hay, escribe «Ninguno».");
     }
@@ -1040,9 +936,6 @@
         return validationError($(group).querySelector("input"), "La opción «"+labelValue(group, EXCLUSIVE[group])+"» debe marcarse sola.");
       }
     }
-    if ($("nestExposure").value === "si" && selected("boxState").indexOf("ok") !== -1){
-      return validationError($("boxState").querySelector("input"), "Si el daño deja el nido expuesto, marca el problema de caja observado en lugar de «OK».");
-    }
     if (selected("actionTaken").indexOf("otro") !== -1 && !$("actionOther").value.trim()){
       return validationError($("actionOther"), "Especifica la otra acción realizada.");
     }
@@ -1069,17 +962,14 @@
       predatorDescription:$("predatorDescription").value.trim(),
       predatorCount:inputNumber("predatorCount"),
       beesPerMinute:inputNumber("beesPerMinute"),
-      temperatureSource:"interior_sonda",
-      tempProbePosition:$("tempProbePosition").value,
-      tempProbeOther:$("tempProbePosition").value === "otra" ? $("tempProbeOther").value.trim() : "",
-      humidityLocation:$("humidityLocation").value,
-      readingComparison:$("readingComparison").value,
+      temperatureSource:MEASUREMENT_SETUP.temperatureSource,
+      humiditySource:MEASUREMENT_SETUP.humiditySource,
+      measurementSetup:JSON.parse(JSON.stringify(MEASUREMENT_SETUP)),
       rain:$("rain").value,
       predatorContext:validCount(inputNumber("predatorCount")) && inputNumber("predatorCount") === 0
         ? "sin_predadores" : $("predatorContext").value,
       waterContext:$("waterStatus").value === "no" ? "sin_agua"
         : $("waterStatus").value === "no_medido" ? "sin_determinar" : $("waterContext").value,
-      nestExposure:$("nestExposure").value,
       instrument:JSON.parse(JSON.stringify(INSTRUMENT)),
       mold:$("mold").value,
       boxState:selected("boxState"),
@@ -1096,12 +986,12 @@
     var temp = data.temp === "" || data.temp === null || data.temp === undefined ? NaN : Number(data.temp);
     var hasPredators = validCount(data.predatorCount) && Number(data.predatorCount) > 0;
     var boxes = asArray(data.boxState);
-    var temperatureReferenceApplied = false;
     function result(level, detail){
       return {
         level:level,title:"Prioridad: "+level.toUpperCase(),detail:detail,
         version:RISK_PROTOCOL.version,status:RISK_PROTOCOL.status,
-        temperatureReferenceApplied:temperatureReferenceApplied,
+        scope:RISK_PROTOCOL.scope,
+        temperatureReferenceApplied:false,
         humidityNumericThresholdApplied:false
       };
     }
@@ -1109,7 +999,6 @@
     var reasons = [];
     if (hasPredators && data.predatorContext === "ataque") reasons.push("ataque o invasión que afecta al nido");
     if (data.waterStatus === "si" && data.waterContext === "afecta_nido") reasons.push("agua que compromete la cría o los potes / inunda el nido");
-    if (data.nestExposure === "si") reasons.push("daño de caja o tapa que deja el nido expuesto");
     if (reasons.length){
       return result("alerta", "Avisar al responsable para evaluación pronta: "+reasons.join("; ")+". Completa las demás observaciones sin demorar el aviso.");
     }
@@ -1121,35 +1010,29 @@
       Object.keys(SELECT_LABELS).every(function(id){return validSelection(id, data[id]);}) &&
       boxes.length && boxes.every(function(v){return validSelection("boxState", v);}) &&
       !(boxes.length > 1 && boxes.indexOf("ok") !== -1) &&
-      (data.tempProbePosition !== "otra" || typeof data.tempProbeOther === "string" && !!data.tempProbeOther.trim()) &&
       (!hasPredators || validSelection("predatorContext", data.predatorContext)) &&
       (data.waterStatus !== "si" || validSelection("waterContext", data.waterContext));
     if (!complete){
-      return result("pendiente", "Completa las lecturas, su ubicación y el chequeo visual para establecer la prioridad de revisión.");
+      return result("pendiente", "Completa las lecturas y el chequeo visual para establecer la prioridad de revisión.");
     }
     var unknown = [];
-    if (data.tempProbePosition === "sin_confirmar") unknown.push("posición de la sonda de temperatura");
-    if (data.humidityLocation === "sin_confirmar") unknown.push("lugar donde se mide la humedad");
     if (data.soundLevel === "no_medido") unknown.push("observación de sonido");
     if (data.waterStatus === "no_medido") unknown.push("presencia de agua");
     if (data.activity === "no_obs") unknown.push("actividad en la entrada");
     if (data.rain === "no_obs") unknown.push("lluvia durante el conteo");
-    if (data.nestExposure === "no_obs") unknown.push("protección del nido");
     var checks = [];
-    if (data.tempProbePosition === TEMPERATURE_REFERENCE.position){
-      temperatureReferenceApplied = true;
-      if (temp < TEMPERATURE_REFERENCE.min || temp > TEMPERATURE_REFERENCE.max){
-        checks.push("temperatura cerca de la cría fuera de la referencia descriptiva de Acre ("+temperatureReferenceText()+"); repetir la lectura y consultar al responsable. Esa referencia no es un límite de salud validado en Manacamiri");
-      }
-    }
+    // Temperatura interna y humedad ambiental se registran, sin convertir extremos
+    // observados en otras colonias en límites sanitarios de esta instalación.
     if (temp === INSTRUMENT.temperatureRange.min || temp === INSTRUMENT.temperatureRange.max ||
       hum === INSTRUMENT.humidityRange.min || hum === INSTRUMENT.humidityRange.max){
       checks.push("lectura en un extremo del rango anunciado del instrumento; corroborarla");
     }
-    if (data.readingComparison === "cambio") checks.push("cambio llamativo respecto a visitas comparables; repetir las lecturas");
-    if (data.readingComparison === "sin_referencia") checks.push("aún no hay una referencia comparable de temperatura y humedad; continuar el registro y consultar al responsable");
     if (hasPredators) checks.push("predadores observados ("+Number(data.predatorCount)+"): "+labelValue("predatorContext", data.predatorContext)+"; verificar su efecto sobre el nido");
     if (data.waterStatus === "si") checks.push("agua detectada: "+labelValue("waterContext", data.waterContext)+"; verificar la protección de la caja");
+    // Nates-Parra y Rodríguez (2011), doi:10.25100/socolen.v37i1.9055,
+    // y Correia et al. (2017), doi:10.25110/arqvet.v20i2.5816, describen variación
+    // de actividad por hora y condiciones ambientales, no un mínimo sanitario universal.
+    // Cero en un minuto pide repetir el conteo: es una regla operativa, no un diagnóstico.
     if (Number(data.beesPerMinute) === 0 && data.activity !== "no_obs"){
       checks.push("sin ingresos durante el minuto de conteo; repetir en una hora y condiciones comparables. No demuestra por sí solo una colonia enferma");
     } else if (data.activity === "baja"){
@@ -1168,8 +1051,7 @@
     if (unknown.length){
       return result("pendiente", "No se puede completar la evaluación: falta confirmar "+unknown.join(", ")+". El registro se puede guardar indicando esta incertidumbre.");
     }
-    return result("normal", "Sin señales de alerta observadas en esta visita. Temperatura: sonda interna; humedad: "+
-      labelValue("humidityLocation", data.humidityLocation)+". El semáforo es provisional y no certifica la salud de la colonia.");
+    return result("normal", "Sin señales de alerta observadas en el chequeo y la actividad de esta visita. La temperatura interna y la humedad ambiental quedan registradas, sin evaluación sanitaria automática. El semáforo es provisional y no certifica la salud de la colonia.");
   }
   function riskForRecord(row){
     // Mantener el color y el motivo con que se guardó cada visita; no reinterpretar históricos.
@@ -1184,7 +1066,6 @@
   }
   function updateRiskPreview(){
     updateOtherFields();
-    updateParameterHelp();
     var risk = assessRisk(currentData());
     var light = trafficLight(risk);
     $("riskBox").className = "riskBox "+light.css;
@@ -1218,14 +1099,6 @@
       title.textContent = observerOf(row)+" · "+(row.hive || HIVE_CODE)+
         " · "+fmtNum(row.temp,1)+"°C · "+fmtNum(row.hum,0)+"% · Sonido: "+labelValue("soundLevel", row.soundLevel);
       var extra = [];
-      if (row.temperatureSource === "interior_sonda"){
-        extra.push("Temperatura: sonda interna · "+labelValue("tempProbePosition", row.tempProbePosition)+
-          (row.tempProbeOther ? " ("+row.tempProbeOther+")" : ""));
-      } else {
-        extra.push("Ubicación de temperatura: no registrada en esta visita anterior");
-      }
-      extra.push("Lugar de humedad: "+(row.humidityLocation ? labelValue("humidityLocation", row.humidityLocation) : "no registrado"));
-      if (row.readingComparison) extra.push("Comparación de lecturas: "+labelValue("readingComparison", row.readingComparison));
       if (row.rain) extra.push("Lluvia: "+labelValue("rain", row.rain));
       if (row.waterStatus && row.waterStatus !== "no") extra.push("Agua: "+labelValue("waterStatus", row.waterStatus));
       if (row.waterContext && row.waterStatus === "si") extra.push("Efecto del agua: "+labelValue("waterContext", row.waterContext));
@@ -1237,7 +1110,6 @@
       extra.push("Abejas ingresando/min: "+(validCount(row.beesPerMinute) ? Number(row.beesPerMinute) : "no registrado"));
       if (row.mold) extra.push("Humedad: "+labelValue("mold", row.mold));
       extra.push("Caja: "+labelOptions("boxState", row.boxState));
-      if (row.nestExposure) extra.push("Protección del nido: "+labelValue("nestExposure", row.nestExposure));
       if (row.shade) extra.push("Exposición: "+labelValue("shade", row.shade));
       extra.push("Acciones: "+labelOptions("actionTaken", row.actionTaken));
       if (row.actionOther && asArray(row.actionTaken).indexOf("otro") !== -1) extra.push("Otra acción: "+row.actionOther);
@@ -1308,7 +1180,7 @@
   }
   function resetReadings(){
     ["temp", "hum", "soundLevel", "waterStatus", "activity", "mold", "shade", "note", "actionOther",
-      "predatorDescription", "predatorCount", "beesPerMinute", "readingComparison", "rain", "nestExposure",
+      "predatorDescription", "predatorCount", "beesPerMinute", "rain",
       "predatorContext", "waterContext"].concat(Object.keys(OPTIONAL_NUMBERS))
       .forEach(function(id){$(id).value = "";});
     GROUPS.forEach(function(group){
@@ -1343,7 +1215,7 @@
       risk:assessRisk(data),
       riskVersion:RISK_PROTOCOL.version,
       riskMethod:{
-        version:RISK_PROTOCOL.version,status:RISK_PROTOCOL.status,
+        version:RISK_PROTOCOL.version,status:RISK_PROTOCOL.status,scope:RISK_PROTOCOL.scope,
         evidenceReviewedOn:RISK_PROTOCOL.evidenceReviewedOn,
         species:RISK_PROTOCOL.species,site:RISK_PROTOCOL.site,
         temperatureReference:JSON.parse(JSON.stringify(TEMPERATURE_REFERENCE)),
@@ -1364,11 +1236,6 @@
     }
     var meta = loadMeta();
     meta.lastObserverName = observer;
-    meta.lastProbePosition = data.tempProbePosition;
-    meta.lastProbeOther = data.tempProbeOther;
-    meta.lastHumidityLocation = data.humidityLocation;
-    meta.measurementProfileHive = HIVE_CODE;
-    meta.measurementProfileInstrument = INSTRUMENT.model;
     saveMeta(meta);
     resetReadings();
     showMsg("Registro de "+observer+" guardado. Se sincronizará cuando haya internet.", true);
@@ -1396,14 +1263,11 @@
       humedad_ambiental_pct:row.hum,
       instrumento:row.instrument || null,
       origen_temperatura:row.temperatureSource || null,
-      posicion_sonda:row.tempProbePosition || null,
-      otra_posicion_sonda:row.tempProbeOther || null,
-      origen_humedad:row.humidityLocation || null,
-      comparacion_lecturas:row.readingComparison || null,
+      origen_humedad:row.humiditySource || row.humidityLocation || null,
+      configuracion_medicion:row.measurementSetup || null,
       lluvia_durante_observacion:row.rain || null,
       predadores_contexto:row.predatorContext || null,
       agua_contexto:row.waterContext || null,
-      nido_expuesto:row.nestExposure || null,
       version_semaforo:row.riskVersion || risk.version || "anterior_sin_version",
       metodo_semaforo:row.riskMethod || null,
       referencia_temperatura_aplicada:risk.temperatureReferenceApplied === undefined ? null : risk.temperatureReferenceApplied,
@@ -1431,6 +1295,13 @@
     };
     if (row.pests) notesObj.plagas_visibles_original = asArray(row.pests);
     if (row.pestsOther) notesObj.otros_insectos_original = row.pestsOther;
+    // Conservar datos de visitas anteriores al sincronizar; no son campos nuevos
+    // ni se usan para clasificar las visitas del formulario simplificado.
+    [ ["tempProbePosition", "posicion_sonda"], ["tempProbeOther", "otra_posicion_sonda"],
+      ["readingComparison", "comparacion_lecturas"], ["nestExposure", "nido_expuesto"] ]
+      .forEach(function(pair){
+        if (Object.prototype.hasOwnProperty.call(row, pair[0])) notesObj[pair[1]] = row[pair[0]];
+      });
     var fieldNotes = [row.note || ""];
     if (actionOther) fieldNotes.push("Otra acción realizada: "+actionOther);
     var fields = {
@@ -1546,11 +1417,6 @@
     $("hive").value = HIVE_CODE;
     $("when").value = toDatetimeLocalValue(new Date());
     $("observerName").value = meta.lastObserverName || meta.lastVolunteer || "";
-    if (meta.measurementProfileHive === HIVE_CODE && meta.measurementProfileInstrument === INSTRUMENT.model){
-      if (validSelection("tempProbePosition", meta.lastProbePosition)) $("tempProbePosition").value = meta.lastProbePosition;
-      $("tempProbeOther").value = meta.lastProbeOther || "";
-      if (validSelection("humidityLocation", meta.lastHumidityLocation)) $("humidityLocation").value = meta.lastHumidityLocation;
-    }
     setNetUI();
     window.addEventListener("online", function(){setNetUI();scheduleSyncSoon();});
     window.addEventListener("offline", function(){setNetUI();setSyncTag("SYNC: OFFLINE");});
