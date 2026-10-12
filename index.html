@@ -404,7 +404,7 @@
       <div class="card">
         <form id="visitForm" novalidate>
           <div class="sectionTitle">Datos de la visita</div>
-          <p class="small requiredNote">Todos los campos mostrados son obligatorios, excepto Observaciones y las medidas de batumen y piquera indicadas como opcionales. En los grupos de casillas, marca al menos una opción. Si no puedes confirmar un dato, elige la opción que lo indique.</p>
+          <p class="small requiredNote">Todos los campos mostrados son obligatorios, excepto Temperatura, Observaciones y las medidas de batumen y piquera indicadas como opcionales. En los grupos de casillas, marca al menos una opción. Si no puedes confirmar un dato, elige la opción que lo indique.</p>
 
           <div>
             <label for="observerName">Nombre y apellido del observador</label>
@@ -430,8 +430,8 @@
           <div class="small">Pantalla afuera · Sonda de temperatura dentro de la colmena.</div>
           <div class="row2">
             <div>
-              <label for="temp">Temperatura (°C)</label>
-              <input id="temp" name="temp" type="number" required min="-40" max="70" step="0.1" inputmode="decimal" placeholder="Ej: 29.5" aria-describedby="tempHint">
+              <label for="temp">Temperatura (°C) (opcional)</label>
+              <input id="temp" name="temp" type="number" min="-40" max="70" step="0.1" inputmode="decimal" placeholder="Ej: 29.5" aria-describedby="tempHint">
               <div id="tempHint" class="small contextHint">Temperatura interna: copia la lectura de la sonda dentro de la caja.</div>
             </div>
             <div>
@@ -896,7 +896,7 @@
     if (!SCHOOL_NAME.trim() || !HIVE_CODE.trim()){
       return validationError($("school"), "Configura el colegio y la colmena antes de registrar una visita.");
     }
-    if ($("temp").value === "" || !Number.isFinite(Number($("temp").value)) || !$("temp").checkValidity()){
+    if (!$("temp").checkValidity() || ($("temp").value !== "" && !Number.isFinite(Number($("temp").value)))){
       return validationError($("temp"), "Copia la temperatura de la sonda: entre −40 y 70 °C, con hasta un decimal. Estos son límites del instrumento, no de salud.");
     }
     if ($("hum").value === "" || !Number.isFinite(Number($("hum").value)) || !$("hum").checkValidity()){
@@ -1001,8 +1001,9 @@
     if (reasons.length){
       return result("alerta", "Avisar al responsable para evaluación pronta: "+reasons.join("; ")+". Completa las demás observaciones sin demorar el aviso.");
     }
-    var validTemp = Number.isFinite(temp) && temp >= INSTRUMENT.temperatureRange.min && temp <= INSTRUMENT.temperatureRange.max &&
-      Math.abs(temp * 10 - Math.round(temp * 10)) < 0.000001;
+    var validTemp = data.temp === "" || data.temp === null || data.temp === undefined ||
+      (Number.isFinite(temp) && temp >= INSTRUMENT.temperatureRange.min && temp <= INSTRUMENT.temperatureRange.max &&
+      Math.abs(temp * 10 - Math.round(temp * 10)) < 0.000001);
     var validHum = Number.isFinite(hum) && Number.isInteger(hum) && hum >= INSTRUMENT.humidityRange.min && hum <= INSTRUMENT.humidityRange.max;
     var complete = validTemp && validHum && validCount(data.predatorCount) && validCount(data.beesPerMinute) &&
       typeof data.predatorDescription === "string" && !!data.predatorDescription.trim() &&
@@ -1197,7 +1198,7 @@
     var now = new Date();
     $("when").value = toDatetimeLocalValue(now);
     var data = currentData();
-    data.temp = Number(data.temp);
+    data.temp = data.temp === "" ? null : Number(data.temp);
     data.hum = Number(data.hum);
     var observer = $("observerName").value.trim().replace(/\s+/g, " ");
     var deviceId = getDeviceId();
